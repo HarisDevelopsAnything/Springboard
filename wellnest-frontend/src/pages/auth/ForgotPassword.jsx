@@ -83,8 +83,25 @@ const ForgotPassword = () => {
       toast.error('Please enter the 6-digit OTP');
       return;
     }
-    // Move to password reset step
-    setStep('reset');
+    
+    setLoading(true);
+    try {
+      // Verify OTP and extend its validity
+      const result = await AuthService.verifyResetOtp({
+        email,
+        otp: otpString,
+      });
+      if (result.success) {
+        toast.success('OTP verified! You have 5 minutes to set your new password.');
+        setStep('reset');
+      } else {
+        toast.error(result.message);
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Invalid or expired OTP');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleResetPassword = async (e) => {

@@ -169,6 +169,7 @@ public class AuthService {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("No account found with this email"));
 
+        // Validate OTP one final time
         boolean isValid = otpService.validateOtp(request.getEmail(), request.getOtp(),
                 OtpToken.OtpPurpose.PASSWORD_RESET);
         if (!isValid) {
@@ -180,5 +181,23 @@ public class AuthService {
         userRepository.save(user);
 
         return "Password reset successful. You can now log in with your new password.";
+    }
+
+    /**
+     * Verify OTP for password reset (extends validity to give user time to enter password).
+     */
+    public String verifyPasswordResetOtp(VerifyOtpRequest request) {
+        userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new RuntimeException("No account found with this email"));
+
+        // Verify OTP and extend expiration by 5 more minutes
+        boolean isValid = otpService.verifyAndExtendOtp(request.getEmail(), request.getOtp(),
+                OtpToken.OtpPurpose.PASSWORD_RESET, 5);
+        
+        if (!isValid) {
+            throw new RuntimeException("Invalid or expired OTP");
+        }
+
+        return "OTP verified successfully. Please enter your new password.";
     }
 }

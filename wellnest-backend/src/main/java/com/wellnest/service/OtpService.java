@@ -75,6 +75,44 @@ public class OtpService {
                 .orElse(false);
     }
 
+    /**
+     * Verify OTP without marking as used, and extend expiration by additional minutes.
+     * Use this for password reset flow where user needs time to enter new password.
+     */
+    public boolean verifyAndExtendOtp(String email, String otp, OtpToken.OtpPurpose purpose, int extendMinutes) {
+        return otpTokenRepository
+                .findTopByEmailAndPurposeAndUsedFalseOrderByCreatedAtDesc(email, purpose)
+                .map(token -> {
+                    if (token.isExpired()) {
+                        log.warn("OTP expired for {} [{}]", email, purpose);
+                        return false;
+                    }
+                    if (!token.getOtp().equals(otp)) {
+                        log.warn("Invalid OTP attempt for {} [{}]", email, purpose);
+                        return false;
+                    }
+                    // Extend expiration time to give user time to reset password
+                    token.setExpiresAt(LocalDateTime.now().plusMinutes(extendMinutes));
+                    otpTokenRepository.save(token);
+                    log.info("OTP verified and extended for {} [{}]", email, purpose);
+                    return true;
+                })
+                .orElse(false);
+    }
+
+    /**
+     * Mark OTP as used after successful operation.
+     */
+    public void markOtpAsUsed(String email, OtpToken.OtpPurpose purpose) {
+        otpTokenRepository
+                .findTopByEmailAndPurposeAndUsedFalseOrderByCreatedAtDesc(email, purpose)
+                .ifPresent(token -> {
+                    token.setUsed(true);
+                    otpTokenRepository.save(token);
+                    log.info("OTP marked as used for {} [{}]", email, purpose);
+                });
+    }
+
     private String generateRandomOtp() {
         int bound = (int) Math.pow(10, otpLength);
         int number = secureRandom.nextInt(bound);

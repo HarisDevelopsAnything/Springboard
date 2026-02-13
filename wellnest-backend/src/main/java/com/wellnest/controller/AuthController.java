@@ -101,6 +101,21 @@ public class AuthController {
     }
 
     /**
+     * POST /api/auth/verify-reset-otp
+     * Verify OTP for password reset (extends validity).
+     */
+    @PostMapping("/verify-reset-otp")
+    public ResponseEntity<ApiResponse> verifyResetOtp(@Valid @RequestBody VerifyOtpRequest request) {
+        try {
+            String message = authService.verifyPasswordResetOtp(request);
+            return ResponseEntity.ok(ApiResponse.success(message));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest()
+                    .body(ApiResponse.error(e.getMessage()));
+        }
+    }
+
+    /**
      * POST /api/auth/reset-password
      * Reset password using OTP verification.
      */

@@ -34,6 +34,11 @@ const AuthService = {
     return response.data;
   },
 
+  verifyResetOtp: async (data) => {
+    const response = await api.post('/auth/verify-reset-otp', data);
+    return response.data;
+  },
+
   resetPassword: async (data) => {
     const response = await api.post('/auth/reset-password', data);
     return response.data;
