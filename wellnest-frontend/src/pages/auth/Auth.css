@@ -8,14 +8,78 @@
 }
 
 .auth-card {
-  background: rgba(255, 255, 255, 0.05);
+  position: relative;
+  background: rgba(15, 12, 30, 0.85);
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: none;
   border-radius: 20px;
   padding: 2.5rem;
   width: 100%;
   max-width: 440px;
-  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+  z-index: 1;
+}
+
+/* Rotating multicolored glow border */
+.auth-card::before {
+  content: '';
+  position: absolute;
+  inset: -1.5px;
+  border-radius: 21px;
+  padding: 1.5px;
+  background: conic-gradient(
+    from var(--glow-angle, 0deg),
+    rgba(78, 204, 163, 0.7),
+    rgba(56, 178, 172, 0.5),
+    rgba(99, 102, 241, 0.7),
+    rgba(139, 92, 246, 0.5),
+    rgba(236, 72, 153, 0.7),
+    rgba(245, 158, 11, 0.5),
+    rgba(78, 204, 163, 0.7)
+  );
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  animation: glowRotate 4s linear infinite;
+  z-index: -1;
+}
+
+/* Outer diffuse glow halo */
+.auth-card::after {
+  content: '';
+  position: absolute;
+  inset: -8px;
+  border-radius: 26px;
+  background: conic-gradient(
+    from var(--glow-angle, 0deg),
+    rgba(78, 204, 163, 0.1),
+    rgba(56, 178, 172, 0.07),
+    rgba(99, 102, 241, 0.1),
+    rgba(139, 92, 246, 0.07),
+    rgba(236, 72, 153, 0.1),
+    rgba(245, 158, 11, 0.07),
+    rgba(78, 204, 163, 0.1)
+  );
+  filter: blur(12px);
+  animation: glowRotate 4s linear infinite;
+  z-index: -2;
+}
+
+@property --glow-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@keyframes glowRotate {
+  to {
+    --glow-angle: 360deg;
+  }
 }
 
 .auth-header {

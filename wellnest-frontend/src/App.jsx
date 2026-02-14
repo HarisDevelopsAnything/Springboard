@@ -10,6 +10,8 @@ import Register from './pages/auth/Register';
 import ForgotPassword from './pages/auth/ForgotPassword';
 import Dashboard from './pages/dashboard/Dashboard';
 import Profile from './pages/profile/Profile';
+import TrainerDashboard from './pages/trainer/TrainerDashboard';
+import SelectTrainer from './pages/trainer/SelectTrainer';
 
 function App() {
   return (
@@ -31,6 +33,8 @@ function App() {
           >
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/trainer-dashboard" element={<TrainerDashboard />} />
+            <Route path="/select-trainer" element={<SelectTrainer />} />
           </Route>
 
           {/* Default redirect */}

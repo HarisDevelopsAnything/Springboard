@@ -1,0 +1,380 @@
+/* ============================
+   Trainer Dashboard — Manage Trainees
+   ============================ */
+
+.trainer-dashboard {
+  position: relative;
+  width: 100%;
+  min-height: 100%;
+}
+
+/* Glow layer */
+.trainer-glow {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.trainer-glow .orb {
+  position: absolute;
+  border-radius: 50%;
+}
+
+.trainer-glow .orb--indigo {
+  width: 600px;
+  height: 600px;
+  top: -10%;
+  left: -5%;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.45) 0%, rgba(79, 70, 229, 0.15) 40%, transparent 65%);
+  filter: blur(50px);
+  animation: tdOrb1 14s ease-in-out infinite alternate;
+}
+
+.trainer-glow .orb--cyan {
+  width: 500px;
+  height: 500px;
+  bottom: -8%;
+  right: -5%;
+  background: radial-gradient(circle, rgba(34, 211, 238, 0.4) 0%, rgba(6, 182, 212, 0.12) 40%, transparent 65%);
+  filter: blur(50px);
+  animation: tdOrb2 16s ease-in-out infinite alternate;
+}
+
+.trainer-glow .orb--emerald {
+  width: 400px;
+  height: 400px;
+  top: 50%;
+  right: 20%;
+  background: radial-gradient(circle, rgba(52, 211, 153, 0.35) 0%, transparent 65%);
+  filter: blur(50px);
+  animation: tdOrb3 18s ease-in-out infinite alternate;
+}
+
+@keyframes tdOrb1 {
+  0%   { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(40px, 30px) scale(1.1); }
+}
+@keyframes tdOrb2 {
+  0%   { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(-35px, -25px) scale(1.05); }
+}
+@keyframes tdOrb3 {
+  0%   { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(25px, -35px) scale(1.1); }
+}
+
+.trainer-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* ============================
+   Header
+   ============================ */
+.trainer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.trainer-header h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0;
+}
+
+.trainer-header .subtitle {
+  margin-top: 0.5rem;
+  color: #a0a0b8;
+  font-size: 0.95rem;
+}
+
+.trainer-stats-bar {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.trainer-stat {
+  text-align: center;
+}
+
+.trainer-stat .stat-number {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #4ecca3;
+}
+
+.trainer-stat .stat-label {
+  font-size: 0.7rem;
+  color: #808098;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* ============================
+   Trainees Grid
+   ============================ */
+.trainees-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.5rem;
+}
+
+/* ============================
+   Trainee Card
+   ============================ */
+@keyframes traineeCardIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.trainee-card {
+  position: relative;
+  padding: 1.5rem;
+  border-radius: 1rem;
+  background: rgba(26, 26, 46, 0.55);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.15);
+  transition: transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              box-shadow 0.35s ease,
+              border-color 0.35s ease;
+  animation: traineeCardIn 0.5s ease-out backwards;
+  overflow: hidden;
+}
+
+.trainee-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(135deg, rgba(255,255,255,0.04) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+.trainee-card:hover {
+  transform: translateY(-5px) scale(1.01);
+  border-color: rgba(99, 102, 241, 0.3);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3),
+              0 0 25px rgba(99, 102, 241, 0.08);
+}
+
+/* Stagger entrance */
+.trainee-card:nth-child(1)  { animation-delay: 0.05s; }
+.trainee-card:nth-child(2)  { animation-delay: 0.1s; }
+.trainee-card:nth-child(3)  { animation-delay: 0.15s; }
+.trainee-card:nth-child(4)  { animation-delay: 0.2s; }
+.trainee-card:nth-child(5)  { animation-delay: 0.25s; }
+.trainee-card:nth-child(6)  { animation-delay: 0.3s; }
+.trainee-card:nth-child(7)  { animation-delay: 0.35s; }
+.trainee-card:nth-child(8)  { animation-delay: 0.4s; }
+
+/* Card header — avatar + name */
+.trainee-card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  margin-bottom: 1.25rem;
+}
+
+.trainee-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.4), rgba(139, 92, 246, 0.4));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #c7d2fe;
+  font-weight: 700;
+  font-size: 1rem;
+  flex-shrink: 0;
+  transition: transform 0.35s;
+}
+
+.trainee-card:hover .trainee-avatar {
+  transform: scale(1.1);
+}
+
+.trainee-name {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #fff;
+  margin: 0;
+}
+
+.trainee-email {
+  font-size: 0.75rem;
+  color: #808098;
+  margin-top: 2px;
+}
+
+.trainee-date-badge {
+  margin-left: auto;
+  font-size: 0.65rem;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: rgba(78, 204, 163, 0.15);
+  color: #4ecca3;
+  white-space: nowrap;
+}
+
+/* Card body — stats grid */
+.trainee-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem;
+}
+
+.trainee-stat-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.65rem;
+  border-radius: 0.6rem;
+  background: rgba(255, 255, 255, 0.04);
+  transition: background 0.2s;
+}
+
+.trainee-stat-item:hover {
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.trainee-stat-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.trainee-stat-item .label {
+  font-size: 0.6rem;
+  color: #808098;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.trainee-stat-item .value {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #e0e0e0;
+  text-transform: capitalize;
+}
+
+/* No-profile state */
+.trainee-no-profile {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.85rem;
+  border-radius: 0.6rem;
+  background: rgba(251, 191, 36, 0.08);
+  border: 1px solid rgba(251, 191, 36, 0.15);
+}
+
+.trainee-no-profile p {
+  font-size: 0.8rem;
+  color: #fbbf24;
+  margin: 0;
+}
+
+/* Medical notes */
+.trainee-notes {
+  margin-top: 0.75rem;
+  padding: 0.65rem;
+  border-radius: 0.6rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.trainee-notes .notes-label {
+  font-size: 0.6rem;
+  color: #808098;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.3rem;
+}
+
+.trainee-notes .notes-text {
+  font-size: 0.8rem;
+  color: #a0a0b8;
+  line-height: 1.5;
+}
+
+/* ============================
+   Empty state
+   ============================ */
+.trainer-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+}
+
+.trainer-empty-icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: rgba(99, 102, 241, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+
+.trainer-empty h3 {
+  color: #fff;
+  font-size: 1.15rem;
+  font-weight: 600;
+  margin: 0 0 0.5rem;
+}
+
+.trainer-empty p {
+  color: #808098;
+  font-size: 0.9rem;
+  max-width: 360px;
+  line-height: 1.6;
+}
+
+/* ============================
+   Responsive
+   ============================ */
+@media (max-width: 600px) {
+  .trainer-header h1 {
+    font-size: 1.4rem;
+  }
+
+  .trainees-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .trainee-stats {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .trainee-card,
+  .trainer-glow .orb {
+    animation: none !important;
+  }
+}

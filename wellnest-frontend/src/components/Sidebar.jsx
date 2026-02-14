@@ -11,16 +11,32 @@ import {
   ChevronLeft,
   ChevronRight,
   Heart,
+  Users,
+  UserCheck,
 } from 'lucide-react';
 
-const navItems = [
-  { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { path: '/profile', label: 'Profile', icon: User },
-  { path: '#', label: 'Workouts', icon: Dumbbell, soon: true },
-  { path: '#', label: 'Nutrition', icon: UtensilsCrossed, soon: true },
-  { path: '#', label: 'Hydration', icon: Droplets, soon: true },
-  { path: '#', label: 'Sleep', icon: Moon, soon: true },
-];
+/** Build nav items dynamically based on user role */
+const getNavItems = (role) => {
+  const items = [
+    { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    { path: '/profile', label: 'Profile', icon: User },
+  ];
+
+  if (role === 'ROLE_TRAINER') {
+    items.push({ path: '/trainer-dashboard', label: 'My Trainees', icon: Users });
+  } else {
+    items.push({ path: '/select-trainer', label: 'My Trainer', icon: UserCheck });
+  }
+
+  items.push(
+    { path: '#', label: 'Workouts', icon: Dumbbell, soon: true },
+    { path: '#', label: 'Nutrition', icon: UtensilsCrossed, soon: true },
+    { path: '#', label: 'Hydration', icon: Droplets, soon: true },
+    { path: '#', label: 'Sleep', icon: Moon, soon: true },
+  );
+
+  return items;
+};
 
 const SIDEBAR_WIDE = 256;
 const SIDEBAR_NARROW = 72;
@@ -52,6 +68,7 @@ const Sidebar = ({ collapsed, setCollapsed, mobileOpen, setMobileOpen }) => {
           display: 'flex',
           flexDirection: 'column',
           background: '#1a1a2e',
+          
           borderRight: '1px solid rgba(255,255,255,0.08)',
           transition: 'width 0.3s ease',
         }}
@@ -170,7 +187,7 @@ const Sidebar = ({ collapsed, setCollapsed, mobileOpen, setMobileOpen }) => {
 
         {/* Nav Links */}
         <nav style={navStyle}>
-          {navItems.map((item) => {
+          {getNavItems(user?.role).map((item) => {
             const Icon = item.icon;
             const isActive = location.pathname === item.path;
 
