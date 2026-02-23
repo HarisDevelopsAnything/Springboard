@@ -1,0 +1,255 @@
+/* ============================
+   Select Trainer Page
+   ============================ */
+
+.select-trainer {
+  position: relative;
+  width: 100%;
+  min-height: 100%;
+}
+
+.select-trainer-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.select-trainer-header h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0;
+}
+
+.select-trainer-header .subtitle {
+  margin-top: 0.5rem;
+  color: #a0a0b8;
+  font-size: 0.95rem;
+}
+
+/* Current trainer banner */
+.current-trainer-banner {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border-radius: 1rem;
+  background: rgba(78, 204, 163, 0.08);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(78, 204, 163, 0.2);
+  flex-wrap: wrap;
+}
+
+.current-trainer-banner .banner-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(78, 204, 163, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.current-trainer-banner .banner-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.current-trainer-banner .banner-text strong {
+  color: #fff;
+  font-weight: 600;
+}
+
+.current-trainer-banner .banner-text p {
+  color: #a0a0b8;
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+/* Trainers grid */
+.trainers-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1.25rem;
+}
+
+@keyframes trainerCardIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.trainer-card {
+  position: relative;
+  padding: 1.5rem;
+  border-radius: 1rem;
+  background: rgba(26, 26, 46, 0.55);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.15);
+  text-align: center;
+  transition: transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              box-shadow 0.35s ease,
+              border-color 0.35s ease;
+  animation: trainerCardIn 0.5s ease-out backwards;
+  overflow: hidden;
+}
+
+.trainer-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(135deg, rgba(255,255,255,0.04) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+.trainer-card:hover {
+  transform: translateY(-5px) scale(1.02);
+  border-color: rgba(78, 204, 163, 0.3);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3),
+              0 0 25px rgba(78, 204, 163, 0.08);
+}
+
+.trainer-card:nth-child(1) { animation-delay: 0.05s; }
+.trainer-card:nth-child(2) { animation-delay: 0.1s; }
+.trainer-card:nth-child(3) { animation-delay: 0.15s; }
+.trainer-card:nth-child(4) { animation-delay: 0.2s; }
+.trainer-card:nth-child(5) { animation-delay: 0.25s; }
+.trainer-card:nth-child(6) { animation-delay: 0.3s; }
+
+.trainer-card-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(78, 204, 163, 0.35), rgba(34, 211, 238, 0.35));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #4ecca3;
+  font-weight: 700;
+  font-size: 1.3rem;
+  margin: 0 auto 0.85rem;
+  transition: transform 0.35s;
+}
+
+.trainer-card:hover .trainer-card-avatar {
+  transform: scale(1.1);
+}
+
+.trainer-card h3 {
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0 0 0.25rem;
+}
+
+.trainer-card .trainer-username {
+  color: #808098;
+  font-size: 0.8rem;
+  margin: 0 0 0.75rem;
+}
+
+.trainer-card .trainee-count {
+  font-size: 0.75rem;
+  color: #a0a0b8;
+  margin-bottom: 1rem;
+}
+
+.trainer-card .trainee-count span {
+  color: #4ecca3;
+  font-weight: 600;
+}
+
+.btn-select-trainer {
+  width: 100%;
+  padding: 0.6rem 1rem;
+  border-radius: 10px;
+  border: none;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-select-trainer.primary {
+  background: #4ecca3;
+  color: #0f0c29;
+}
+
+.btn-select-trainer.primary:hover {
+  background: #38b2ac;
+  transform: translateY(-1px);
+}
+
+.btn-select-trainer.selected {
+  background: rgba(78, 204, 163, 0.15);
+  color: #4ecca3;
+  border: 1px solid rgba(78, 204, 163, 0.3);
+  cursor: default;
+}
+
+.btn-select-trainer:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Empty state */
+.select-trainer-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+}
+
+.select-trainer-empty-icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: rgba(78, 204, 163, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+
+.select-trainer-empty h3 {
+  color: #fff;
+  font-size: 1.15rem;
+  font-weight: 600;
+  margin: 0 0 0.5rem;
+}
+
+.select-trainer-empty p {
+  color: #808098;
+  font-size: 0.9rem;
+  max-width: 360px;
+  line-height: 1.6;
+}
+
+@media (max-width: 600px) {
+  .select-trainer-header h1 {
+    font-size: 1.4rem;
+  }
+
+  .trainers-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .trainer-card {
+    animation: none !important;
+  }
+}

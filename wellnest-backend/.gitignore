@@ -19,6 +19,8 @@ target/
 *.env
 .env.*
 !.env.example
+application-secrets.properties
+**/application-secrets.properties
 
 # === OS ===
 Thumbs.db

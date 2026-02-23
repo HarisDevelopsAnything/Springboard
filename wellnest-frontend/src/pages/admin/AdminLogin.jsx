@@ -1,11 +1,11 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { toast } from 'react-toastify';
-import { FiHeart, FiMail, FiLock, FiLogIn } from 'react-icons/fi';
-import './Auth.css';
+import { FiShield, FiMail, FiLock, FiLogIn } from 'react-icons/fi';
+import '../auth/Auth.css';
 
-const Login = () => {
+const AdminLogin = () => {
   const [formData, setFormData] = useState({ username: '', password: '' });
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
@@ -21,26 +21,21 @@ const Login = () => {
     try {
       const result = await login(formData);
       if (result.success) {
-        toast.success('Welcome back! 💪');
-        // Redirect based on role
+        // Check if user is admin
         if (result.data.role === 'ROLE_ADMIN') {
+          toast.success('Welcome Admin! 🛡️');
           navigate('/admin/dashboard');
         } else {
-          navigate('/dashboard');
+          toast.error('Access denied. Admin credentials required.');
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
         }
       } else {
         toast.error(result.message || 'Login failed');
       }
     } catch (error) {
-      const status = error.response?.status;
-      const message = error.response?.data?.message || '';
-
-      if (status === 403 && message.includes('Email not verified')) {
-        toast.warning('Please verify your email first. A new OTP has been sent.');
-        // Could navigate to a verify page, but user should check email
-      } else {
-        toast.error(message || 'Invalid username or password');
-      }
+      const message = error.response?.data?.message || 'Invalid credentials';
+      toast.error(message);
     } finally {
       setLoading(false);
     }
@@ -50,17 +45,17 @@ const Login = () => {
     <div className="auth-container">
       <div className="auth-card">
         <div className="auth-header">
-          <FiHeart className="auth-logo" />
-          <h1>WellNest</h1>
-          <p>Smart Health & Fitness Companion</p>
+          <FiShield className="auth-logo" style={{ color: '#dc3545' }} />
+          <h1>WellNest Admin</h1>
+          <p>Administrative Access Portal</p>
         </div>
 
         <form onSubmit={handleSubmit} className="auth-form">
-          <h2>Sign In</h2>
+          <h2>Admin Sign In</h2>
 
           <div className="form-group">
             <label htmlFor="username">
-              <FiMail /> Username or Email
+              <FiMail /> Username
             </label>
             <input
               type="text"
@@ -68,7 +63,7 @@ const Login = () => {
               name="username"
               value={formData.username}
               onChange={handleChange}
-              placeholder="Enter your username or email"
+              placeholder="Enter admin username"
               required
             />
           </div>
@@ -83,13 +78,9 @@ const Login = () => {
               name="password"
               value={formData.password}
               onChange={handleChange}
-              placeholder="Enter your password"
+              placeholder="Enter admin password"
               required
             />
-          </div>
-
-          <div className="forgot-password-link">
-            <Link to="/forgot-password">Forgot Password?</Link>
           </div>
 
           <button type="submit" className="btn-primary" disabled={loading}>
@@ -97,20 +88,18 @@ const Login = () => {
               <span className="btn-loading">Signing in...</span>
             ) : (
               <>
-                <FiLogIn /> Sign In
+                <FiLogIn /> Admin Sign In
               </>
             )}
           </button>
         </form>
 
         <div className="auth-footer">
-          <p>
-            Don't have an account? <Link to="/register">Create Account</Link>
-          </p>
+          <p>Admin access only. Unauthorized access is prohibited.</p>
         </div>
       </div>
     </div>
   );
 };
 
-export default Login;
+export default AdminLogin;

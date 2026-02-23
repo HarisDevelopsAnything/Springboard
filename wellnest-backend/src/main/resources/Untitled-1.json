@@ -1,0 +1,557 @@
+{
+  "name": "wellnest",
+  "path": "e:\\wellnest",
+  "type": "directory",
+  "children": [
+    {
+      "name": "Springboard",
+      "type": "folder",
+      "icon": "📁",
+      "children": [
+        {
+          "name": "wellnest-backend",
+          "type": "folder",
+          "icon": "📁",
+          "children": [
+            {
+              "name": ".mvn",
+              "type": "folder",
+              "icon": "📁",
+              "children": [
+                {
+                  "name": "wrapper",
+                  "type": "folder",
+                  "icon": "📁",
+                  "children": [
+                    {
+                      "name": "maven-wrapper.properties",
+                      "type": "file",
+                      "icon": "📄"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "src",
+              "type": "folder",
+              "icon": "📁",
+              "children": [
+                {
+                  "name": "main",
+                  "type": "folder",
+                  "icon": "📁",
+                  "children": [
+                    {
+                      "name": "java",
+                      "type": "folder",
+                      "icon": "📁",
+                      "children": [
+                        {
+                          "name": "com",
+                          "type": "folder",
+                          "icon": "📁",
+                          "children": [
+                            {
+                              "name": "wellnest",
+                              "type": "folder",
+                              "icon": "📁",
+                              "children": [
+                                {
+                                  "name": "config",
+                                  "type": "folder",
+                                  "icon": "📁",
+                                  "children": [
+                                    {
+                                      "name": "SecurityConfig.java",
+                                      "type": "file",
+                                      "icon": "📄"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "name": "controller",
+                                  "type": "folder",
+                                  "icon": "📁",
+                                  "children": [
+                                    {
+                                      "name": "AuthController.java",
+                                      "type": "file",
+                                      "icon": "📄"
+                                    },
+                                    {
+                                      "name": "ProfileController.java",
+                                      "type": "file",
+                                      "icon": "📄"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "name": "dto",
+                                  "type": "folder",
+                                  "icon": "📁",
+                                  "children": [
+                                    {
+                                      "name": "ApiResponse.java",
+                                      "type": "file",
+                                      "icon": "📄"
+                                    },
+                                    {
+                                      "name": "AuthResponse.java",
+                                      "type": "file",
+                                      "icon": "📄"
+                                    },
+                                    {
+                                      "name": "FitnessProfileDTO.java",
+                                      "type": "file",
+                                      "icon": "📄"
+                                    },
+                                    {
+                                      "name": "ForgotPasswordRequest.java",
+                                      "type": "file",
+                                      "icon": "📄"
+                                    },
+                                    {
+                                      "name": "LoginRequest.java",
+                                      "type": "file",
+                                      "icon": "📄"
+                                    },
+                                    {
+                                      "name": "RegisterRequest.java",
+                                      "type": "file",
+                                      "icon": "📄"
+                                    },
+                                    {
+                                      "name": "ResetPasswordRequest.java",
+                                      "type": "file",
+                                      "icon": "📄"
+                                    },
+                                    {
+                                      "name": "UserProfileResponse.java",
+                                      "type": "file",
+                                      "icon": "📄"
+                                    },
+                                    {
+                                      "name": "VerifyOtpRequest.java",
+                                      "type": "file",
+                                      "icon": "📄"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "name": "entity",
+                                  "type": "folder",
+                                  "icon": "📁",
+                                  "children": [
+                                    {
+                                      "name": "FitnessProfile.java",
+                                      "type": "file",
+                                      "icon": "📄"
+                                    },
+                                    {
+                                      "name": "OtpToken.java",
+                                      "type": "file",
+                                      "icon": "📄"
+                                    },
+                                    {
+                                      "name": "Role.java",
+                                      "type": "file",
+                                      "icon": "📄"
+                                    },
+                                    {
+                                      "name": "User.java",
+                                      "type": "file",
+                                      "icon": "📄"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "name": "exception",
+                                  "type": "folder",
+                                  "icon": "📁",
+                                  "children": [
+                                    {
+                                      "name": "GlobalExceptionHandler.java",
+                                      "type": "file",
+                                      "icon": "📄"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "name": "repository",
+                                  "type": "folder",
+                                  "icon": "📁",
+                                  "children": [
+                                    {
+                                      "name": "FitnessProfileRepository.java",
+                                      "type": "file",
+                                      "icon": "📄"
+                                    },
+                                    {
+                                      "name": "OtpTokenRepository.java",
+                                      "type": "file",
+                                      "icon": "📄"
+                                    },
+                                    {
+                                      "name": "UserRepository.java",
+                                      "type": "file",
+                                      "icon": "📄"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "name": "security",
+                                  "type": "folder",
+                                  "icon": "📁",
+                                  "children": [
+                                    {
+                                      "name": "CustomUserDetails.java",
+                                      "type": "file",
+                                      "icon": "📄"
+                                    },
+                                    {
+                                      "name": "CustomUserDetailsService.java",
+                                      "type": "file",
+                                      "icon": "📄"
+                                    },
+                                    {
+                                      "name": "JwtAuthenticationEntryPoint.java",
+                                      "type": "file",
+                                      "icon": "📄"
+                                    },
+                                    {
+                                      "name": "JwtAuthenticationFilter.java",
+                                      "type": "file",
+                                      "icon": "📄"
+                                    },
+                                    {
+                                      "name": "JwtTokenProvider.java",
+                                      "type": "file",
+                                      "icon": "📄"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "name": "service",
+                                  "type": "folder",
+                                  "icon": "📁",
+                                  "children": [
+                                    {
+                                      "name": "AuthService.java",
+                                      "type": "file",
+                                      "icon": "📄"
+                                    },
+                                    {
+                                      "name": "EmailService.java",
+                                      "type": "file",
+                                      "icon": "📄"
+                                    },
+                                    {
+                                      "name": "OtpService.java",
+                                      "type": "file",
+                                      "icon": "📄"
+                                    },
+                                    {
+                                      "name": "ProfileService.java",
+                                      "type": "file",
+                                      "icon": "📄"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "name": "WellNestApplication.java",
+                                  "type": "file",
+                                  "icon": "📄"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "name": "resources",
+                      "type": "folder",
+                      "icon": "📁",
+                      "children": [
+                        {
+                          "name": "application.properties",
+                          "type": "file",
+                          "icon": "📄"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": ".env.example",
+              "type": "file",
+              "icon": "📄"
+            },
+            {
+              "name": ".gitignore",
+              "type": "file",
+              "icon": "📁"
+            },
+            {
+              "name": "mvnw",
+              "type": "file",
+              "icon": "📄"
+            },
+            {
+              "name": "mvnw.cmd",
+              "type": "file",
+              "icon": "📄"
+            },
+            {
+              "name": "pom.xml",
+              "type": "file",
+              "icon": "📄"
+            }
+          ]
+        },
+        {
+          "name": "wellnest-frontend",
+          "type": "folder",
+          "icon": "📁",
+          "children": [
+            {
+              "name": "public",
+              "type": "folder",
+              "icon": "📁",
+              "children": [
+                {
+                  "name": "vite.svg",
+                  "type": "file",
+                  "icon": "🖼️"
+                }
+              ]
+            },
+            {
+              "name": "src",
+              "type": "folder",
+              "icon": "📁",
+              "children": [
+                {
+                  "name": "assets",
+                  "type": "folder",
+                  "icon": "📁",
+                  "children": [
+                    {
+                      "name": "react.svg",
+                      "type": "file",
+                      "icon": "🖼️"
+                    }
+                  ]
+                },
+                {
+                  "name": "components",
+                  "type": "folder",
+                  "icon": "📁",
+                  "children": [
+                    {
+                      "name": "Layout.jsx",
+                      "type": "file",
+                      "icon": "⚛️"
+                    },
+                    {
+                      "name": "Navbar.css",
+                      "type": "file",
+                      "icon": "🎨"
+                    },
+                    {
+                      "name": "Navbar.jsx",
+                      "type": "file",
+                      "icon": "⚛️"
+                    },
+                    {
+                      "name": "ProtectedRoute.jsx",
+                      "type": "file",
+                      "icon": "⚛️"
+                    },
+                    {
+                      "name": "Sidebar.jsx",
+                      "type": "file",
+                      "icon": "⚛️"
+                    }
+                  ]
+                },
+                {
+                  "name": "context",
+                  "type": "folder",
+                  "icon": "📁",
+                  "children": [
+                    {
+                      "name": "AuthContext.jsx",
+                      "type": "file",
+                      "icon": "⚛️"
+                    }
+                  ]
+                },
+                {
+                  "name": "pages",
+                  "type": "folder",
+                  "icon": "📁",
+                  "children": [
+                    {
+                      "name": "auth",
+                      "type": "folder",
+                      "icon": "📁",
+                      "children": [
+                        {
+                          "name": "Auth.css",
+                          "type": "file",
+                          "icon": "🎨"
+                        },
+                        {
+                          "name": "ForgotPassword.jsx",
+                          "type": "file",
+                          "icon": "⚛️"
+                        },
+                        {
+                          "name": "Login.jsx",
+                          "type": "file",
+                          "icon": "⚛️"
+                        },
+                        {
+                          "name": "Register.jsx",
+                          "type": "file",
+                          "icon": "⚛️"
+                        }
+                      ]
+                    },
+                    {
+                      "name": "dashboard",
+                      "type": "folder",
+                      "icon": "📁",
+                      "children": [
+                        {
+                          "name": "Dashboard.css",
+                          "type": "file",
+                          "icon": "🎨"
+                        },
+                        {
+                          "name": "Dashboard.jsx",
+                          "type": "file",
+                          "icon": "⚛️"
+                        }
+                      ]
+                    },
+                    {
+                      "name": "profile",
+                      "type": "folder",
+                      "icon": "📁",
+                      "children": [
+                        {
+                          "name": "Profile.css",
+                          "type": "file",
+                          "icon": "🎨"
+                        },
+                        {
+                          "name": "Profile.jsx",
+                          "type": "file",
+                          "icon": "⚛️"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "name": "services",
+                  "type": "folder",
+                  "icon": "📁",
+                  "children": [
+                    {
+                      "name": "api.js",
+                      "type": "file",
+                      "icon": "📜"
+                    },
+                    {
+                      "name": "authService.js",
+                      "type": "file",
+                      "icon": "📜"
+                    },
+                    {
+                      "name": "profileService.js",
+                      "type": "file",
+                      "icon": "📜"
+                    }
+                  ]
+                },
+                {
+                  "name": "App.css",
+                  "type": "file",
+                  "icon": "🎨"
+                },
+                {
+                  "name": "App.jsx",
+                  "type": "file",
+                  "icon": "⚛️"
+                },
+                {
+                  "name": "index.css",
+                  "type": "file",
+                  "icon": "🎨"
+                },
+                {
+                  "name": "main.jsx",
+                  "type": "file",
+                  "icon": "⚛️"
+                }
+              ]
+            },
+            {
+              "name": ".gitignore",
+              "type": "file",
+              "icon": "📁"
+            },
+            {
+              "name": "README.md",
+              "type": "file",
+              "icon": "📝"
+            },
+            {
+              "name": "eslint.config.js",
+              "type": "file",
+              "icon": "📜"
+            },
+            {
+              "name": "index.html",
+              "type": "file",
+              "icon": "🌐"
+            },
+            {
+              "name": "package-lock.json",
+              "type": "file",
+              "icon": "⚙️"
+            },
+            {
+              "name": "package.json",
+              "type": "file",
+              "icon": "📦"
+            },
+            {
+              "name": "vite.config.js",
+              "type": "file",
+              "icon": "📜"
+            }
+          ]
+        },
+        {
+          "name": ".gitignore",
+          "type": "file",
+          "icon": "📁"
+        }
+      ]
+    }
+  ],
+  "metadata": {
+    "generated": "2026-02-13T15:50:03.263Z",
+    "generator": "FileTree Pro Extension",
+    "version": "0.2.0",
+    "showIcons": true,
+    "maxDepth": 10
+  }
+}
