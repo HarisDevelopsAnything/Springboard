@@ -1,6 +1,7 @@
 package com.wellnest.service;
 
 import com.wellnest.dto.*;
+import com.wellnest.dto.trainer.*;
 import com.wellnest.entity.*;
 import com.wellnest.repository.*;
 import lombok.RequiredArgsConstructor;
@@ -8,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -19,6 +21,10 @@ public class TrainerService {
     private final UserRepository userRepository;
     private final FitnessProfileRepository fitnessProfileRepository;
     private final TrainerAssignmentRepository assignmentRepository;
+    private final TrainerMessageRepository trainerMessageRepository;
+    private final DailyStatRepository dailyStatRepository;
+    private final MealRepository mealRepository;
+    private final WorkoutRepository workoutRepository;
 
     /**
      * Get all available trainers with their active trainee count.
@@ -160,4 +166,109 @@ public class TrainerService {
                 .activeTraineeCount(count)
                 .build();
     }
+
+    /**
+     * Get trainee's daily stats (water, calories, sleep, workouts) for trainer view
+     */
+    public TraineeStatsResponse getTraineeStats(String trainerId, String traineeId) {
+        // Validate trainer has access to this trainee
+        User trainer = userRepository.findById(trainerId)
+                .orElseThrow(() -> new RuntimeException("Trainer not found"));
+        if (trainer.getRole() != Role.ROLE_TRAINER) {
+            throw new RuntimeException("Access denied");
+        }
+
+        Optional<TrainerAssignment> assignment = assignmentRepository
+                .findByTrainerIdAndActiveTrue(trainerId).stream()
+                .filter(a -> a.getTraineeId().equals(traineeId))
+                .findFirst();
+        
+        if (assignment.isEmpty()) {
+            throw new RuntimeException("You are not assigned to this trainee");
+        }
+
+        User trainee = userRepository.findById(traineeId)
+                .orElseThrow(() -> new RuntimeException("Trainee not found"));
+
+        // Get today's stats
+        LocalDate today = LocalDate.now();
+        Optional<DailyStat> todayStat = dailyStatRepository.findByUserIdAndDate(traineeId, today);
+
+        // Get today's meals for calories
+        List<Meal> todayMeals = mealRepository.findByUserIdAndDate(traineeId, today);
+        double totalCalories = todayMeals.stream()
+                .mapToDouble(m -> (m.getProtein() * 4) + (m.getCarbs() * 4) + (m.getFats() * 9))
+                .sum();
+
+        // Get this week's workouts
+        LocalDate weekStart = today.minusDays(today.getDayOfWeek().getValue() - 1);
+        List<Workout> weekWorkouts = workoutRepository.findAllByUserIdAndDateBetween(traineeId, weekStart, today);
+
+        return TraineeStatsResponse.builder()
+                .traineeId(traineeId)
+                .traineeName(trainee.getFullName())
+                .traineeEmail(trainee.getEmail())
+                .waterLiters(todayStat.map(DailyStat::getWaterLiters).orElse(0.0))
+                .waterGoalLiters(todayStat.map(DailyStat::getWaterGoalLiters).orElse(3.0))
+                .totalCalories(totalCalories)
+                .sleepHours(todayStat.map(DailyStat::getSleepHours).orElse(0.0))
+                .sleepGoalHours(todayStat.map(DailyStat::getSleepGoalHours).orElse(8.0))
+                .workoutsThisWeek(weekWorkouts.size())
+                .mealsLoggedToday(todayMeals.size())
+                .build();
+    }
+
+    /**
+     * Send message from trainer to trainee
+     */
+    public TrainerMessage sendMessageToTrainee(String trainerId, SendMessageRequest request) {
+        // Validate trainer
+        User trainer = userRepository.findById(trainerId)
+                .orElseThrow(() -> new RuntimeException("Trainer not found"));
+        if (trainer.getRole() != Role.ROLE_TRAINER) {
+            throw new RuntimeException("Access denied");
+        }
+
+        // Validate trainee assignment
+        Optional<TrainerAssignment> assignment = assignmentRepository
+                .findByTrainerIdAndActiveTrue(trainerId).stream()
+                .filter(a -> a.getTraineeId().equals(request.getTraineeId()))
+                .findFirst();
+        
+        if (assignment.isEmpty()) {
+            throw new RuntimeException("You are not assigned to this trainee");
+        }
+
+        TrainerMessage message = TrainerMessage.builder()
+                .trainerId(trainerId)
+                .traineeId(request.getTraineeId())
+                .message(request.getMessage())
+                .read(false)
+                .build();
+
+        return trainerMessageRepository.save(message);
+    }
+
+    /**
+     * Get unread messages for trainee
+     */
+    public List<TrainerMessage> getUnreadMessages(String traineeId) {
+        return trainerMessageRepository.findByTraineeIdAndReadFalseOrderByCreatedAtDesc(traineeId);
+    }
+
+    /**
+     * Mark message as read
+     */
+    public void markMessageAsRead(String messageId, String traineeId) {
+        TrainerMessage message = trainerMessageRepository.findById(messageId)
+                .orElseThrow(() -> new RuntimeException("Message not found"));
+        
+        if (!message.getTraineeId().equals(traineeId)) {
+            throw new RuntimeException("Access denied");
+        }
+
+        message.setRead(true);
+        trainerMessageRepository.save(message);
+    }
 }
+

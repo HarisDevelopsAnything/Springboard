@@ -2,42 +2,25 @@ package com.wellnest.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
+import org.springframework.mail.MailException;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.RestClientException;
-import org.springframework.web.client.RestTemplate;
 
-import java.time.Duration;
+import jakarta.mail.internet.MimeMessage;
 
 @Service
 @Slf4j
 public class EmailService {
 
-    private final RestTemplate restTemplate;
-
-    @Value("${mailgun.base-url}")
-    private String mailgunBaseUrl;
-
-    @Value("${mailgun.domain}")
-    private String mailgunDomain;
-
-    @Value("${mailgun.api-key}")
-    private String mailgunApiKey;
+    private final JavaMailSender mailSender;
 
     @Value("${app.mail.from}")
     private String fromEmail;
 
-    public EmailService(RestTemplateBuilder restTemplateBuilder) {
-        this.restTemplate = restTemplateBuilder
-                .setConnectTimeout(Duration.ofSeconds(10))
-                .setReadTimeout(Duration.ofSeconds(10))
-                .build();
+    public EmailService(JavaMailSender mailSender) {
+        this.mailSender = mailSender;
     }
 
     /**
@@ -65,23 +48,17 @@ public class EmailService {
     }
 
     private void sendEmail(String to, String subject, String htmlBody) {
-        String endpoint = "%s/v3/%s/messages".formatted(mailgunBaseUrl, mailgunDomain);
-
-        MultiValueMap<String, String> payload = new LinkedMultiValueMap<>();
-        payload.add("from", fromEmail);
-        payload.add("to", to);
-        payload.add("subject", subject);
-        payload.add("html", htmlBody);
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-        headers.setBasicAuth("api", mailgunApiKey);
-
         try {
-            restTemplate.postForEntity(endpoint, new HttpEntity<>(payload, headers), String.class);
-            log.info("Mailgun email sent successfully to {}", to);
-        } catch (RestClientException e) {
-            log.error("Failed to send Mailgun email to {}: {}", to, e.getMessage());
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, "utf-8");
+            helper.setFrom(fromEmail);
+            helper.setTo(to);
+            helper.setSubject(subject);
+            helper.setText(htmlBody, true);
+            mailSender.send(message);
+            log.info("SMTP email sent successfully to {}", to);
+        } catch (MailException | jakarta.mail.MessagingException e) {
+            log.error("Failed to send SMTP email to {}: {}", to, e.getMessage());
             throw new RuntimeException("Failed to send email. Please try again later.", e);
         }
     }

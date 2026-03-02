@@ -1,6 +1,8 @@
 package com.wellnest.controller;
 
 import com.wellnest.dto.*;
+import com.wellnest.dto.trainer.*;
+import com.wellnest.entity.TrainerMessage;
 import com.wellnest.security.CustomUserDetails;
 import com.wellnest.service.TrainerService;
 import jakarta.validation.Valid;
@@ -69,4 +71,64 @@ public class TrainerController {
         TrainerDTO trainer = trainerService.getMyTrainerToday(userDetails.getId());
         return ResponseEntity.ok(ApiResponse.success("Current trainer retrieved", trainer));
     }
+
+    /**
+     * GET /api/trainers/trainee-stats/{traineeId}
+     * Trainer gets specific trainee's daily stats (water, calories, sleep, workouts)
+     */
+    @GetMapping("/trainee-stats/{traineeId}")
+    public ResponseEntity<ApiResponse> getTraineeStats(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable String traineeId) {
+        try {
+            TraineeStatsResponse stats = trainerService.getTraineeStats(userDetails.getId(), traineeId);
+            return ResponseEntity.ok(ApiResponse.success("Trainee stats retrieved", stats));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(ApiResponse.error(e.getMessage()));
+        }
+    }
+
+    /**
+     * POST /api/trainers/send-message
+     * Trainer sends a message to trainee
+     */
+    @PostMapping("/send-message")
+    public ResponseEntity<ApiResponse> sendMessage(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @Valid @RequestBody SendMessageRequest request) {
+        try {
+            TrainerMessage message = trainerService.sendMessageToTrainee(userDetails.getId(), request);
+            return ResponseEntity.ok(ApiResponse.success("Message sent successfully", message));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(ApiResponse.error(e.getMessage()));
+        }
+    }
+
+    /**
+     * GET /api/trainers/messages/unread
+     * Trainee gets unread messages from their trainer
+     */
+    @GetMapping("/messages/unread")
+    public ResponseEntity<ApiResponse> getUnreadMessages(
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        List<TrainerMessage> messages = trainerService.getUnreadMessages(userDetails.getId());
+        return ResponseEntity.ok(ApiResponse.success("Unread messages retrieved", messages));
+    }
+
+    /**
+     * PUT /api/trainers/messages/{messageId}/read
+     * Trainee marks a message as read
+     */
+    @PutMapping("/messages/{messageId}/read")
+    public ResponseEntity<ApiResponse> markMessageAsRead(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable String messageId) {
+        try {
+            trainerService.markMessageAsRead(messageId, userDetails.getId());
+            return ResponseEntity.ok(ApiResponse.success("Message marked as read"));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(ApiResponse.error(e.getMessage()));
+        }
+    }
 }
+

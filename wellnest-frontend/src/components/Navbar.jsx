@@ -9,6 +9,7 @@ import {
   FiX,
 } from 'react-icons/fi';
 import { useState } from 'react';
+import TrainerNotifications from './TrainerNotifications';
 import './Navbar.css';
 
 const Navbar = () => {
@@ -53,6 +54,9 @@ const Navbar = () => {
           </Link>
 
           <div className="nav-user">
+            {/* Show notifications only for trainees (non-ROLE_TRAINER) */}
+            {user?.role !== 'ROLE_TRAINER' && <TrainerNotifications />}
+            
             <span className="nav-username">
               {user?.fullName || user?.username}
             </span>

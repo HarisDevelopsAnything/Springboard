@@ -28,11 +28,11 @@ const getNavItems = (role) => {
     items.push({ path: '/select-trainer', label: 'My Trainer', icon: UserCheck });
   }
 
+  // Tracker links
   items.push(
-    { path: '#', label: 'Workouts', icon: Dumbbell, soon: true },
-    { path: '#', label: 'Nutrition', icon: UtensilsCrossed, soon: true },
-    { path: '#', label: 'Hydration', icon: Droplets, soon: true },
-    { path: '#', label: 'Sleep', icon: Moon, soon: true },
+    { path: '/tracker/workouts', label: 'Workouts', icon: Dumbbell },
+    { path: '/tracker/meals', label: 'Nutrition', icon: UtensilsCrossed },
+    { path: '/tracker/daily-stats', label: 'Hydration & Sleep', icon: Droplets },
   );
 
   return items;

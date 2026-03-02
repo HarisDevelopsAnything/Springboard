@@ -3,7 +3,12 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import ProfileService from '../../services/profileService';
 import TrainerService from '../../services/trainerService';
+import trackerService from '../../services/trackerService';
 import ReportModal from '../../components/ReportModal';
+import WaterWave from '../../components/WaterWave';
+import NutrientBars from '../../components/NutrientBars';
+import SleepStages from '../../components/SleepStages';
+import WorkoutCircle from '../../components/WorkoutCircle';
 import './Dashboard.css';
 import {
   Activity,
@@ -33,6 +38,10 @@ const Dashboard = () => {
   const [trainees, setTrainees] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showReportModal, setShowReportModal] = useState(false);
+  const [todayWater, setTodayWater] = useState({ current: 0, goal: 3 });
+  const [todaySleep, setTodaySleep] = useState({ total: 0, goal: 8, rem: 0, deep: 0, light: 0 });
+  const [todayNutrients, setTodayNutrients] = useState({ protein: 0, carbs: 0, fats: 0, calories: 0 });
+  const [todayWorkouts, setTodayWorkouts] = useState([]);
 
   useEffect(() => {
     if (isTrainer) {
@@ -48,6 +57,43 @@ const Dashboard = () => {
       if (result.success) {
         setProfile(result.data);
       }
+      const today = new Date().toISOString().slice(0, 10);
+      
+      // Fetch today's water stats
+      const statsResult = await trackerService.listDailyStats();
+      const stats = statsResult.data || [];
+      const todayStat = stats.find(s => s.date === today);
+      if (todayStat) {
+        setTodayWater({
+          current: todayStat.waterLiters || 0,
+          goal: todayStat.waterGoalLiters || 3
+        });
+        setTodaySleep({
+          total: todayStat.sleepHours || 0,
+          goal: todayStat.sleepGoalHours || 8,
+          rem: todayStat.remSleepHours || 0,
+          deep: todayStat.deepSleepHours || 0,
+          light: todayStat.lightSleepHours || 0
+        });
+      }
+      
+      // Fetch today's meals
+      const mealsResult = await trackerService.listMeals();
+      const meals = mealsResult.data || [];
+      const todayMeals = meals.filter(m => m.date === today);
+      const totals = todayMeals.reduce((acc, meal) => ({
+        protein: acc.protein + (meal.protein || 0),
+        carbs: acc.carbs + (meal.carbs || 0),
+        fats: acc.fats + (meal.fats || 0),
+        calories: acc.calories + (meal.calories || 0)
+      }), { protein: 0, carbs: 0, fats: 0, calories: 0 });
+      setTodayNutrients(totals);
+
+      // Fetch today's workouts
+      const workoutsResult = await trackerService.listWorkouts();
+      const workouts = workoutsResult.data || [];
+      const todayWorkoutsFiltered = workouts.filter(w => w.date === today);
+      setTodayWorkouts(todayWorkoutsFiltered);
     } catch (error) {
       console.error('Failed to load profile:', error);
     } finally {
@@ -300,6 +346,7 @@ const Dashboard = () => {
       color: 'text-red-400',
       bg: 'bg-red-500/10',
       week: 'Week 3',
+      path: '/tracker/workouts',
     },
     {
       icon: UtensilsCrossed,
@@ -308,14 +355,7 @@ const Dashboard = () => {
       color: 'text-yellow-400',
       bg: 'bg-yellow-500/10',
       week: 'Week 3',
-    },
-    {
-      icon: Droplets,
-      title: 'Water Intake',
-      desc: 'Track your daily water consumption easily.',
-      color: 'text-blue-400',
-      bg: 'bg-blue-500/10',
-      week: 'Week 4',
+      path: '/tracker/meals',
     },
     {
       icon: Moon,
@@ -324,6 +364,7 @@ const Dashboard = () => {
       color: 'text-purple-400',
       bg: 'bg-purple-500/10',
       week: 'Week 4',
+      path: '/tracker/daily-stats',
     },
   ];
 
@@ -408,27 +449,83 @@ const Dashboard = () => {
           })}
         </div>
 
-        {/* Feature Cards */}
+        {/* Nutrition Card */}
         <div>
-          <h2 className="section-title">Quick Access</h2>
-          <div className="feature-grid">
-            {featureCards.map((card) => {
-              const Icon = card.icon;
-              const colorMap = { 'text-red-400': '#f87171', 'text-yellow-400': '#fbbf24', 'text-blue-400': '#60a5fa', 'text-purple-400': '#c084fc' };
-              const bgMap = { 'bg-red-500/10': 'rgba(239,68,68,0.1)', 'bg-yellow-500/10': 'rgba(234,179,8,0.1)', 'bg-blue-500/10': 'rgba(59,130,246,0.1)', 'bg-purple-500/10': 'rgba(168,85,247,0.1)' };
-              return (
-                <div key={card.title} className="feature-card">
-                  <div className="feature-icon-box" style={{ background: bgMap[card.bg] || 'rgba(255,255,255,0.05)' }}>
-                    <Icon style={{ width: 22, height: 22, color: colorMap[card.color] || '#e0e0e0' }} />
-                  </div>
-                  <h3>{card.title}</h3>
-                  <p>{card.desc}</p>
-                  <span className="badge">Coming in {card.week}</span>
-                </div>
-              );
-            })}
-          </div>
+          <h2 className="section-title">Today's Nutrition</h2>
+          <Link to="/tracker/meals" className="nutrition-dashboard-card">
+            <div className="nutrition-dashboard-header">
+              <UtensilsCrossed style={{ width: 24, height: 24, color: '#f59e0b' }} />
+              <h3>Meal Tracker</h3>
+              <span className="nutrition-calories">{todayNutrients.calories} kcal</span>
+            </div>
+            <NutrientBars 
+              protein={todayNutrients.protein} 
+              carbs={todayNutrients.carbs} 
+              fats={todayNutrients.fats} 
+              compact 
+            />
+          </Link>
         </div>
+
+        {/* Water Intake Card */}
+        <div>
+          <h2 className="section-title">Today's Hydration</h2>
+          <Link to="/tracker/daily-stats" className="water-dashboard-card">
+            <div className="water-dashboard-header">
+              <Droplets style={{ width: 24, height: 24, color: '#60a5fa' }} />
+              <h3>Water Intake</h3>
+            </div>
+            <WaterWave current={todayWater.current} goal={todayWater.goal} compact />
+          </Link>
+        </div>
+
+        {/* Sleep Card */}
+        <div>
+          <h2 className="section-title">Today's Sleep</h2>
+          <Link to="/tracker/daily-stats" className="sleep-dashboard-card">
+            <div className="sleep-dashboard-header">
+              <Moon style={{ width: 24, height: 24, color: '#c084fc' }} />
+              <h3>Sleep Quality</h3>
+            </div>
+            {todaySleep.total > 0 ? (
+              <SleepStages 
+                total={todaySleep.total}
+                goal={todaySleep.goal}
+                rem={todaySleep.rem}
+                deep={todaySleep.deep}
+                light={todaySleep.light}
+                compact
+              />
+            ) : (
+              <div className="dashboard-empty-state">
+                <p>No sleep data logged yet</p>
+                <span className="dashboard-empty-hint">Tap to add from your fitness band</span>
+              </div>
+            )}
+          </Link>
+        </div>
+
+        {/* Workout Card */}
+        <div>
+          <h2 className="section-title">Today's Workout</h2>
+          <Link to="/tracker/workouts" className="workout-dashboard-card">
+            <div className="workout-dashboard-header">
+              <Dumbbell style={{ width: 24, height: 24, color: '#ef4444' }} />
+              <h3>Activity</h3>
+            </div>
+            {todayWorkouts.length > 0 ? (
+              <WorkoutCircle workouts={todayWorkouts} calorieGoal={500} compact />
+            ) : (
+              <div className="dashboard-empty-state">
+                <p>No workouts logged yet</p>
+                <span className="dashboard-empty-hint">Tap to start tracking</span>
+              </div>
+            )}
+          </Link>
+        </div>
+
+        {/* Feature Cards */}
+        
 
         {/* Report Trainer Button - Only for Customers */}
         {isCustomer && (

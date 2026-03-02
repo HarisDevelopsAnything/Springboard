@@ -11,6 +11,9 @@ import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
 import ForgotPassword from './pages/auth/ForgotPassword';
 import Dashboard from './pages/dashboard/Dashboard';
+import WorkoutTracker from './pages/tracker/WorkoutTracker';
+import MealTracker from './pages/tracker/MealTracker';
+import DailyStats from './pages/tracker/DailyStats';
 import Profile from './pages/profile/Profile';
 import TrainerDashboard from './pages/trainer/TrainerDashboard';
 import SelectTrainer from './pages/trainer/SelectTrainer';
@@ -50,6 +53,9 @@ function App() {
             <Route path="/profile" element={<Profile />} />
             <Route path="/trainer-dashboard" element={<TrainerDashboard />} />
             <Route path="/select-trainer" element={<SelectTrainer />} />
+            <Route path="/tracker/workouts" element={<WorkoutTracker />} />
+            <Route path="/tracker/meals" element={<MealTracker />} />
+            <Route path="/tracker/daily-stats" element={<DailyStats />} />
           </Route>
 
           {/* Default redirect - role based */}
