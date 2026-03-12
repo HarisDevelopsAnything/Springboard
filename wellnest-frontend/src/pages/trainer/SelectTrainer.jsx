@@ -70,7 +70,7 @@ const SelectTrainer = () => {
         {/* Header */}
         <div className="select-trainer-header">
           <h1>Select a Trainer</h1>
-          <p className="subtitle">Choose a trainer for today. You can pick one trainer per day.</p>
+          <p className="subtitle">Choose your trainer and start your fitness journey together.</p>
         </div>
 
         {/* Current trainer banner */}
@@ -81,9 +81,9 @@ const SelectTrainer = () => {
             </div>
             <div className="banner-text">
               <p>
-                Today's trainer: <strong>{currentTrainer.fullName}</strong>
+                Your trainer: <strong>{currentTrainer.fullName}</strong>
               </p>
-              <p>You can change your selection below.</p>
+              <p>You can change your selection anytime below.</p>
             </div>
           </div>
         )}
@@ -119,7 +119,7 @@ const SelectTrainer = () => {
                     {isSelected ? (
                       <>
                         <CheckCircle style={{ width: 14, height: 14, display: 'inline', marginRight: 4, verticalAlign: 'middle' }} />
-                        Selected for Today
+                        Your Trainer
                       </>
                     ) : selecting === trainer.id ? (
                       'Selecting...'

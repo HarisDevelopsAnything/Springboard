@@ -13,6 +13,10 @@ import {
   Heart,
   Users,
   UserCheck,
+  Calculator,
+  TrendingUp,
+  MessageSquare,
+  Bell,
 } from 'lucide-react';
 
 /** Build nav items dynamically based on user role */
@@ -28,11 +32,22 @@ const getNavItems = (role) => {
     items.push({ path: '/select-trainer', label: 'My Trainer', icon: UserCheck });
   }
 
+  // Health & Fitness Tools
+  items.push(
+    { path: '/bmi-calculator', label: 'BMI Calculator', icon: Calculator },
+    { path: '/weight-tracker', label: 'Weight Tracker', icon: TrendingUp },
+  );
+
   // Tracker links
   items.push(
     { path: '/tracker/workouts', label: 'Workouts', icon: Dumbbell },
     { path: '/tracker/meals', label: 'Nutrition', icon: UtensilsCrossed },
     { path: '/tracker/daily-stats', label: 'Hydration & Sleep', icon: Droplets },
+  );
+
+  // Communication
+  items.push(
+    { path: '/notifications', label: 'Notifications', icon: Bell },
   );
 
   return items;

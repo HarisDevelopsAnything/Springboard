@@ -494,3 +494,385 @@
     font-size: 1.5rem;
   }
 }
+
+/* Tabs for Stats, BMI, and Workout */
+.details-tabs {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 2rem;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.08);
+}
+
+.tab-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.875rem 1.5rem;
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+}
+
+.tab-btn:hover {
+  color: #cbd5e1;
+}
+
+.tab-btn.active {
+  color: #a78bfa;
+  border-bottom-color: #a78bfa;
+}
+
+/* BMI Progress Section */
+.bmi-progress-section {
+  animation: fadeIn 0.3s ease;
+}
+
+.bmi-progress-section h3 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #f8fafc;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.bmi-current-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1.25rem;
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: rgba(30, 30, 60, 0.6);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.bmi-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.bmi-stat label {
+  font-size: 0.85rem;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.bmi-stat span {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #f8fafc;
+}
+
+.bmi-category {
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  text-align: center;
+  font-size: 1rem !important;
+}
+
+.bmi-category.underweight {
+  background: rgba(59, 130, 246, 0.2);
+  color: #60a5fa;
+}
+
+.bmi-category.normal {
+  background: rgba(34, 197, 94, 0.2);
+  color: #22c55e;
+}
+
+.bmi-category.overweight {
+  background: rgba(251, 146, 60, 0.2);
+  color: #fb923c;
+}
+
+.bmi-category.obese {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+}
+
+.bmi-chart {
+  background: rgba(30, 30, 60, 0.6);
+  border-radius: 16px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.chart-svg {
+  width: 100%;
+  height: auto;
+}
+
+.bmi-history-list {
+  background: rgba(30, 30, 60, 0.6);
+  border-radius: 16px;
+  padding: 1.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.bmi-history-list h4 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #f8fafc;
+  margin-bottom: 1rem;
+}
+
+.bmi-entry {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: rgba(40, 40, 80, 0.4);
+  border-radius: 12px;
+  margin-bottom: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.bmi-entry:last-child {
+  margin-bottom: 0;
+}
+
+.entry-date {
+  font-size: 0.9rem;
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+.entry-details {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+.entry-details span {
+  font-size: 0.9rem;
+  color: #cbd5e1;
+  font-weight: 500;
+}
+
+.bmi-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.8rem !important;
+  font-weight: 600 !important;
+}
+
+.bmi-badge.underweight {
+  background: rgba(59, 130, 246, 0.2);
+  color: #60a5fa;
+}
+
+.bmi-badge.normal {
+  background: rgba(34, 197, 94, 0.2);
+  color: #22c55e;
+}
+
+.bmi-badge.overweight {
+  background: rgba(251, 146, 60, 0.2);
+  color: #fb923c;
+}
+
+.bmi-badge.obese {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+}
+
+.empty-bmi-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+}
+
+.empty-bmi-state svg {
+  color: #64748b;
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+
+.empty-bmi-state p {
+  font-size: 1.1rem;
+  color: #94a3b8;
+}
+
+/* Workout Assignment Section */
+.workout-assignment-section {
+  animation: fadeIn 0.3s ease;
+}
+
+.workout-assignment-section h3 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #f8fafc;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.workout-form {
+  background: rgba(30, 30, 60, 0.6);
+  border-radius: 16px;
+  padding: 2rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group:last-of-type {
+  margin-bottom: 2rem;
+}
+
+.form-group label {
+  display: block;
+  font-size: 0.9rem;
+  color: #ffffff;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  background: rgba(25, 25, 45, 0.9);
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  border-radius: 10px;
+  padding: 0.875rem;
+  color: #ffffff;
+  font-size: 0.95rem;
+  font-weight: 500;
+  font-family: inherit;
+  transition: all 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: rgba(139, 92, 246, 0.5);
+  background: rgba(40, 40, 80, 0.7);
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+  color: #64748b;
+}
+
+.form-group textarea {
+  resize: vertical;
+}
+
+.assign-workout-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 1rem 2rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  font-weight: 700;
+  font-size: 1rem;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.assign-workout-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.trainer-content {
+  position: relative;
+  z-index: 1;
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.subtitle {
+  font-size: 0.95rem;
+  color: #cbd5e1;
+}
+
+.trainer-stats-bar {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.trainer-stat {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  background: rgba(30, 30, 60, 0.6);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.trainer-stat svg {
+  color: #a78bfa;
+}
+
+.trainer-stat span {
+  font-weight: 600;
+  color: #f8fafc;
+  font-size: 0.95rem;
+}
+
+.details-email {
+  font-size: 0.9rem;
+  color: #94a3b8;
+  margin-top: 0.25rem;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1.5rem;
+  text-align: center;
+}
+
+.empty-state svg {
+  color: #64748b;
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+
+.empty-state p {
+  font-size: 1rem;
+  color: #94a3b8;
+}
+

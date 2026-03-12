@@ -4,6 +4,7 @@ import { toast } from 'react-toastify';
 import { useAuth } from '../../context/AuthContext';
 import AdminService from '../../services/adminService.js';
 import ReportService from '../../services/reportService.js';
+import ReportDetailModal from '../../components/ReportDetailModal';
 import { 
   FiUsers, FiUserCheck, FiAlertCircle, FiTrash2, 
   FiX, FiRefreshCw, FiBarChart2, FiLogOut 
@@ -19,6 +20,7 @@ const AdminDashboard = () => {
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedReport, setSelectedReport] = useState(null);
+  const [showReportModal, setShowReportModal] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -361,7 +363,15 @@ const AdminDashboard = () => {
             ) : (
               <div className="reports-grid">
                 {reports.map(report => (
-                  <div key={report.id} className={`report-card ${getStatusBadge(report.status)}`}>
+                  <div 
+                    key={report.id} 
+                    className={`report-card ${getStatusBadge(report.status)}`}
+                    onClick={() => {
+                      setSelectedReport(report);
+                      setShowReportModal(true);
+                    }}
+                    style={{ cursor: 'pointer' }}
+                  >
                     <div className="report-header">
                       <span className={`status-badge ${getStatusBadge(report.status)}`}>
                         {report.status}
@@ -386,35 +396,8 @@ const AdminDashboard = () => {
                         <p className="report-message">{report.message}</p>
                       </div>
                     </div>
-                    <div className="report-actions">
-                      {report.status === 'PENDING' && (
-                        <>
-                          <button 
-                            className="btn-action btn-reviewed"
-                            onClick={() => handleUpdateReportStatus(report.id, 'REVIEWED')}
-                          >
-                            Mark Reviewed
-                          </button>
-                          <button 
-                            className="btn-action btn-resolved"
-                            onClick={() => handleUpdateReportStatus(report.id, 'RESOLVED')}
-                          >
-                            Resolve
-                          </button>
-                          <button 
-                            className="btn-action btn-dismissed"
-                            onClick={() => handleUpdateReportStatus(report.id, 'DISMISSED')}
-                          >
-                            Dismiss
-                          </button>
-                        </>
-                      )}
-                      <button 
-                        className="btn-action btn-delete-report"
-                        onClick={() => handleDeleteReport(report.id)}
-                      >
-                        <FiTrash2 /> Delete
-                      </button>
+                    <div className="report-preview-note">
+                      <p>Click to view full details and take action</p>
                     </div>
                   </div>
                 ))}
@@ -423,6 +406,17 @@ const AdminDashboard = () => {
           </div>
         )}
       </div>
+
+      <ReportDetailModal
+        report={selectedReport}
+        isOpen={showReportModal}
+        onClose={() => {
+          setShowReportModal(false);
+          setSelectedReport(null);
+        }}
+        onUpdateStatus={handleUpdateReportStatus}
+        onDelete={handleDeleteReport}
+      />
     </div>
   );
 };

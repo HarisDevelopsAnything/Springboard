@@ -88,22 +88,26 @@
   display: flex;
   align-items: center;
   gap: 0.4rem;
-  color: #b0b0c0;
-  font-size: 0.85rem;
-  font-weight: 500;
+  color: #ffffff;
+  font-size: 0.875rem;
+  font-weight: 700;
   margin-bottom: 0.4rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
 }
 
 .fitness-form input,
 .fitness-form select,
 .fitness-form textarea {
   width: 100%;
-  padding: 0.75rem 1rem;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 0.875rem 1rem;
+  background: rgba(25, 25, 45, 0.9);
+  border: 2px solid rgba(255, 255, 255, 0.25);
   border-radius: 10px;
   color: #ffffff;
-  font-size: 0.95rem;
+  font-size: 1rem;
+  font-weight: 500;
   transition: all 0.2s;
   outline: none;
   box-sizing: border-box;
@@ -112,7 +116,7 @@
 
 .fitness-form input::placeholder,
 .fitness-form textarea::placeholder {
-  color: #666680;
+  color: #8888a0;
 }
 
 .fitness-form input:focus,

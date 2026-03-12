@@ -19,6 +19,9 @@ import TrainerDashboard from './pages/trainer/TrainerDashboard';
 import SelectTrainer from './pages/trainer/SelectTrainer';
 import AdminLogin from './pages/admin/AdminLogin';
 import AdminDashboard from './pages/admin/AdminDashboard';
+import BmiCalculatorPage from './pages/health/BmiCalculatorPage';
+import WeightTrackerPage from './pages/health/WeightTrackerPage';
+import NotificationsPage from './pages/notifications/NotificationsPage';
 
 function App() {
   return (
@@ -56,6 +59,9 @@ function App() {
             <Route path="/tracker/workouts" element={<WorkoutTracker />} />
             <Route path="/tracker/meals" element={<MealTracker />} />
             <Route path="/tracker/daily-stats" element={<DailyStats />} />
+            <Route path="/bmi-calculator" element={<BmiCalculatorPage />} />
+            <Route path="/weight-tracker" element={<WeightTrackerPage />} />
+            <Route path="/notifications" element={<NotificationsPage />} />
           </Route>
 
           {/* Default redirect - role based */}

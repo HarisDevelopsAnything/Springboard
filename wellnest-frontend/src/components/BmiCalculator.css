@@ -1,0 +1,236 @@
+.bmi-calculator {
+  background: rgba(15, 15, 35, 0.85);
+  backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 24px;
+  padding: 2.5rem;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+}
+
+.bmi-header {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+.bmi-header .bmi-icon {
+  font-size: 3rem;
+  color: #667eea;
+  margin-bottom: 1rem;
+}
+
+.bmi-header h2 {
+  font-size: 2rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;  background-clip: text;  margin-bottom: 0.5rem;
+}
+
+.bmi-header p {
+  color: #cbd5e1;
+  font-size: 1rem;
+}
+
+.bmi-input-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
+  align-items: end;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.input-group label {
+  font-weight: 700;
+  color: #f8fafc;
+  font-size: 0.95rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.input-group input {
+  padding: 1rem 1.25rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  background: rgba(30, 30, 60, 0.6);
+  color: #f8fafc;
+}
+
+.input-group input::placeholder {
+  color: #64748b;
+}
+
+.input-group input:focus {
+  outline: none;
+  border-color: rgba(139, 92, 246, 0.5);
+  background: rgba(30, 30, 60, 0.8);
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+}
+
+.btn-calculate {
+  padding: 1rem 2.5rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.btn-calculate:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 25px rgba(102, 126, 234, 0.5);
+}
+
+.btn-calculate:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.bmi-result {
+  display: grid;
+  gap: 2rem;
+}
+
+.bmi-value-card {
+  background: rgba(30, 30, 60, 0.6);
+  border-radius: 20px;
+  padding: 2.5rem;
+  text-align: center;
+  border: 2px solid;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+}
+
+.bmi-value {
+  font-size: 4.5rem;
+  font-weight: 900;
+  line-height: 1;
+  margin-bottom: 1rem;
+  color: #f8fafc;
+}
+
+.bmi-category {
+  display: inline-block;
+  padding: 0.75rem 2rem;
+  border-radius: 50px;
+  color: white;
+  font-weight: 800;
+  font-size: 1.1rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.ideal-weight-card {
+  background: linear-gradient(135deg, rgba(132, 250, 176, 0.2) 0%, rgba(143, 211, 244, 0.2) 100%);
+  border: 1px solid rgba(132, 250, 176, 0.3);
+  border-radius: 20px;
+  padding: 2rem;
+  text-align: center;
+  color: #84fab0;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+}
+
+.ideal-weight-card .card-icon {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.ideal-weight-card h3 {
+  font-size: 1.3rem;
+  font-weight: 800;
+  margin-bottom: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #f8fafc;
+}
+
+.weight-range {
+  font-size: 2rem;
+  font-weight: 900;
+  margin: 0;
+  color: #84fab0;
+}
+
+.recommendation-card {
+  border-radius: 20px;
+  padding: 2rem;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+  background: rgba(30, 30, 60, 0.6);
+}
+
+.workout-recommendation {
+  border: 2px solid rgba(255, 107, 107, 0.5);
+}
+
+.nutrition-recommendation {
+  border: 2px solid rgba(102, 126, 234, 0.5);
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.card-header .card-icon {
+  font-size: 1.75rem;
+  color: inherit;
+}
+
+.workout-recommendation .card-header {
+  color: #ff9f7c;
+}
+
+.nutrition-recommendation .card-header {
+  color: #a78bfa;
+}
+
+.recommendation-card h3 {
+  font-size: 1.25rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0;
+  color: #f8fafc;
+}
+
+.recommendation-card p {
+  color: #cbd5e1;
+  line-height: 1.8;
+  font-size: 1rem;
+  font-weight: 500;
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .bmi-calculator {
+    padding: 1.5rem;
+  }
+
+  .bmi-input-section {
+    grid-template-columns: 1fr;
+  }
+
+  .bmi-value {
+    font-size: 3.5rem;
+  }
+
+  .weight-range {
+    font-size: 1.5rem;
+  }
+}
