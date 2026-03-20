@@ -7,8 +7,9 @@ import { FiActivity, FiTrendingUp, FiInfo } from 'react-icons/fi';
 
 const BmiCalculator = () => {
   const [profile, setProfile] = useState(null);
-  const [weight, setWeight] = useState('');
-  const [height, setHeight] = useState('');
+  const [manualWeight, setManualWeight] = useState('');
+  const [manualHeight, setManualHeight] = useState('');
+  const [inputMode, setInputMode] = useState('profile');
   const [bmiResult, setBmiResult] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -21,15 +22,43 @@ const BmiCalculator = () => {
       const result = await ProfileService.getProfile();
       if (result.success && result.data) {
         setProfile(result.data);
-        setWeight(result.data.weight || '');
-        setHeight(result.data.height || '');
+
+        const profileWeight = result.data?.fitnessProfile?.weight || result.data?.weight || '';
+        const profileHeight = result.data?.fitnessProfile?.height || result.data?.height || '';
+
+        setManualWeight(profileWeight);
+        setManualHeight(profileHeight);
+
+        if (!profileWeight || !profileHeight) {
+          setInputMode('manual');
+        }
       }
     } catch (error) {
       console.error('Failed to load profile:', error);
+      setInputMode('manual');
     }
   };
 
+  const getInputValues = () => {
+    const profileWeight = profile?.fitnessProfile?.weight || profile?.weight || '';
+    const profileHeight = profile?.fitnessProfile?.height || profile?.height || '';
+
+    if (inputMode === 'profile') {
+      return {
+        weight: profileWeight,
+        height: profileHeight,
+      };
+    }
+
+    return {
+      weight: manualWeight,
+      height: manualHeight,
+    };
+  };
+
   const calculateBmi = async () => {
+    const { weight, height } = getInputValues();
+
     if (!weight || !height) {
       toast.error('Please enter both weight and height');
       return;
@@ -84,15 +113,38 @@ const BmiCalculator = () => {
       </div>
 
       <div className="bmi-input-section">
+        <div className="bmi-mode-toggle">
+          <button
+            type="button"
+            className={inputMode === 'profile' ? 'active' : ''}
+            onClick={() => setInputMode('profile')}
+            disabled={!profile?.fitnessProfile?.weight || !profile?.fitnessProfile?.height}
+          >
+            Use Profile
+          </button>
+          <button
+            type="button"
+            className={inputMode === 'manual' ? 'active' : ''}
+            onClick={() => setInputMode('manual')}
+          >
+            Manual Entry
+          </button>
+        </div>
+
+        {inputMode === 'profile' && (!profile?.fitnessProfile?.weight || !profile?.fitnessProfile?.height) && (
+          <p className="bmi-mode-hint">Profile weight/height not found. Switch to manual entry.</p>
+        )}
+
         <div className="input-group">
           <label>Weight (kg)</label>
           <input
             type="number"
-            value={weight}
-            onChange={(e) => setWeight(e.target.value)}
+            value={inputMode === 'profile' ? (profile?.fitnessProfile?.weight || profile?.weight || '') : manualWeight}
+            onChange={(e) => setManualWeight(e.target.value)}
             placeholder="Enter weight in kg"
             step="0.1"
             min="0"
+            disabled={inputMode === 'profile'}
           />
         </div>
 
@@ -100,11 +152,12 @@ const BmiCalculator = () => {
           <label>Height (cm)</label>
           <input
             type="number"
-            value={height}
-            onChange={(e) => setHeight(e.target.value)}
+            value={inputMode === 'profile' ? (profile?.fitnessProfile?.height || profile?.height || '') : manualHeight}
+            onChange={(e) => setManualHeight(e.target.value)}
             placeholder="Enter height in cm"
             step="0.1"
             min="0"
+            disabled={inputMode === 'profile'}
           />
         </div>
 

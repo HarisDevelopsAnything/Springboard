@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import { useAuth } from '../../context/AuthContext';
 import ProfileService from '../../services/profileService';
 import TrainerService from '../../services/trainerService';
 import trackerService from '../../services/trackerService';
+import healthTipService from '../../services/healthTipService';
 import ReportModal from '../../components/ReportModal';
 import WaterWave from '../../components/WaterWave';
 import NutrientBars from '../../components/NutrientBars';
@@ -28,6 +30,7 @@ import {
   BarChart3,
   Heart,
   AlertCircle,
+  Footprints,
 } from 'lucide-react';
 
 const Dashboard = () => {
@@ -40,8 +43,30 @@ const Dashboard = () => {
   const [showReportModal, setShowReportModal] = useState(false);
   const [todayWater, setTodayWater] = useState({ current: 0, goal: 3 });
   const [todaySleep, setTodaySleep] = useState({ total: 0, goal: 8, rem: 0, deep: 0, light: 0 });
+  const [todaySteps, setTodaySteps] = useState(0);
   const [todayNutrients, setTodayNutrients] = useState({ protein: 0, carbs: 0, fats: 0, calories: 0 });
   const [todayWorkouts, setTodayWorkouts] = useState([]);
+  const [healthTip, setHealthTip] = useState('');
+  const [healthTipSource, setHealthTipSource] = useState('');
+
+  const getDateKey = (dateObj = new Date()) => {
+    const y = dateObj.getFullYear();
+    const m = String(dateObj.getMonth() + 1).padStart(2, '0');
+    const d = String(dateObj.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  };
+
+  const normalizeDateKey = (value) => {
+    if (!value) return null;
+    if (typeof value === 'string') {
+      return value.includes('T') ? value.split('T')[0] : value;
+    }
+    if (Array.isArray(value) && value.length >= 3) {
+      const [y, m, d] = value;
+      return `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+    }
+    return null;
+  };
 
   useEffect(() => {
     if (isTrainer) {
@@ -57,12 +82,17 @@ const Dashboard = () => {
       if (result.success) {
         setProfile(result.data);
       }
-      const today = new Date().toISOString().slice(0, 10);
+      const today = getDateKey();
       
       // Fetch today's water stats
       const statsResult = await trackerService.listDailyStats();
-      const stats = statsResult.data || [];
-      const todayStat = stats.find(s => s.date === today);
+      const stats = Array.isArray(statsResult.data) ? statsResult.data : [];
+      const dailyStatsByDate = new Map(
+        stats
+          .map((s) => [normalizeDateKey(s.date), s])
+          .filter(([dateKey]) => !!dateKey)
+      );
+      const todayStat = dailyStatsByDate.get(today);
       if (todayStat) {
         setTodayWater({
           current: todayStat.waterLiters || 0,
@@ -75,6 +105,11 @@ const Dashboard = () => {
           deep: todayStat.deepSleepHours || 0,
           light: todayStat.lightSleepHours || 0
         });
+        setTodaySteps(todayStat.steps || 0);
+      } else {
+        setTodayWater({ current: 0, goal: 3 });
+        setTodaySleep({ total: 0, goal: 8, rem: 0, deep: 0, light: 0 });
+        setTodaySteps(0);
       }
       
       // Fetch today's meals
@@ -94,10 +129,32 @@ const Dashboard = () => {
       const workouts = workoutsResult.data || [];
       const todayWorkoutsFiltered = workouts.filter(w => w.date === today);
       setTodayWorkouts(todayWorkoutsFiltered);
+
+      await loadHealthTip();
     } catch (error) {
       console.error('Failed to load profile:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadHealthTip = async () => {
+    try {
+      const result = await healthTipService.getRandomTip();
+      if (!result?.success || !result?.data?.tip) return;
+
+      const tipText = result.data.tip;
+      const source = result.data.source || 'Health API';
+      setHealthTip(tipText);
+      setHealthTipSource(source);
+
+      const toastKey = `health-tip-seen-${new Date().toISOString().slice(0, 10)}`;
+      if (!window.sessionStorage.getItem(toastKey)) {
+        toast.info(`💡 Health Tip: ${tipText}`, { autoClose: 5000 });
+        window.sessionStorage.setItem(toastKey, '1');
+      }
+    } catch (error) {
+      console.error('Failed to load health tip:', error);
     }
   };
 
@@ -417,6 +474,17 @@ const Dashboard = () => {
           </div>
         )}
 
+        {!!healthTip && (
+          <div className="health-tip-card">
+            <div className="health-tip-header">
+              <Bell className="health-tip-icon" />
+              <h3>Random Health Tip</h3>
+            </div>
+            <p>{healthTip}</p>
+            {healthTipSource && <span className="health-tip-source">Source: {healthTipSource}</span>}
+          </div>
+        )}
+
         {/* Stats Grid */}
         <div className="stats-grid">
           {[
@@ -502,6 +570,19 @@ const Dashboard = () => {
                 <span className="dashboard-empty-hint">Tap to add from your fitness band</span>
               </div>
             )}
+          </Link>
+        </div>
+
+        {/* Steps Card */}
+        <div>
+          <h2 className="section-title">Today's Steps</h2>
+          <Link to="/tracker/daily-stats" className="steps-dashboard-card">
+            <div className="steps-dashboard-header">
+              <Footprints style={{ width: 24, height: 24, color: '#34d399' }} />
+              <h3>Step Count</h3>
+            </div>
+            <div className="steps-dashboard-value">{todaySteps.toLocaleString()} steps</div>
+            <span className="steps-dashboard-hint">From DailyStats ({getDateKey()})</span>
           </Link>
         </div>
 

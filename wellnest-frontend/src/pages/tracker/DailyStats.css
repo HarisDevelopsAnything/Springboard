@@ -20,6 +20,7 @@
 }
 
 .water-card,
+.steps-card,
 .sleep-card {
   background: rgba(15, 15, 35, 0.95);
   backdrop-filter: blur(24px);
@@ -231,6 +232,27 @@
   transform: translateY(-2px);
 }
 
+.steps-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  text-align: center;
+}
+
+.steps-value {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #4ecca3;
+  line-height: 1;
+}
+
+.steps-subtitle {
+  color: #a0a0b8;
+  font-size: 0.9rem;
+}
+
 .history-section {
   background: rgba(15, 15, 35, 0.95);
   backdrop-filter: blur(24px);
@@ -285,6 +307,12 @@
 
 .history-water,
 .history-sleep {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.history-steps {
   font-size: 1rem;
   font-weight: 600;
   color: #fff;

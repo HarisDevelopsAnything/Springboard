@@ -6,6 +6,8 @@ import com.wellnest.dto.tracker.WorkoutRequest;
 import com.wellnest.entity.*;
 import com.wellnest.repository.*;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +16,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class TrackerService {
 
     private final WorkoutRepository workoutRepository;
@@ -26,6 +29,36 @@ public class TrackerService {
         return userRepository.findByUsernameOrEmail(principal, principal)
                 .orElseThrow(() -> new RuntimeException("Authenticated user not found"))
                 .getId();
+    }
+
+    private String resolveUserIdForDailyStats(DailyStatRequest req) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.isAuthenticated()) {
+            String principal = auth.getName();
+            if (principal != null && !principal.isBlank() && !"anonymousUser".equals(principal)) {
+                java.util.Optional<User> authUser = userRepository.findByUsernameOrEmail(principal, principal);
+                if (authUser.isPresent()) {
+                    String email = req.getEmail();
+                    if (email != null && !email.isBlank()) {
+                        User emailUser = userRepository.findByEmail(email.trim())
+                                .orElseThrow(() -> new RuntimeException("No user found for provided email"));
+                        if (!emailUser.getId().equals(authUser.get().getId())) {
+                            throw new RuntimeException("Provided email does not match authenticated user");
+                        }
+                    }
+                    return authUser.get().getId();
+                }
+            }
+        }
+
+        String email = req.getEmail();
+        if (email != null && !email.isBlank()) {
+            return userRepository.findByEmail(email.trim())
+                    .orElseThrow(() -> new RuntimeException("No user found for provided email"))
+                    .getId();
+        }
+
+        throw new RuntimeException("Unable to resolve user for daily stats");
     }
 
     // Workouts
@@ -79,7 +112,9 @@ public class TrackerService {
 
     // Daily stats
     public DailyStat upsertDailyStat(DailyStatRequest req) {
-        String uid = currentUserId();
+        String uid = resolveUserIdForDailyStats(req);
+        log.info("Upsert daily stats request userId={}, date={}, steps={}, emailPresent={}",
+                uid, req.getDate(), req.getSteps(), req.getEmail() != null && !req.getEmail().isBlank());
         java.util.Optional<DailyStat> existingOpt = dailyStatRepository.findByUserIdAndDate(uid, req.getDate());
         if (existingOpt.isEmpty()) {
             DailyStat ds = DailyStat.builder()
@@ -92,19 +127,21 @@ public class TrackerService {
                     .remSleepHours(req.getRemSleepHours())
                     .deepSleepHours(req.getDeepSleepHours())
                     .lightSleepHours(req.getLightSleepHours())
+                    .steps(req.getSteps())
                     .notes(req.getNotes())
                     .build();
             return dailyStatRepository.save(ds);
         }
         DailyStat existing = existingOpt.get();
-        existing.setWaterLiters(req.getWaterLiters());
-        existing.setWaterGoalLiters(req.getWaterGoalLiters());
-        existing.setSleepHours(req.getSleepHours());
-        existing.setSleepGoalHours(req.getSleepGoalHours());
-        existing.setRemSleepHours(req.getRemSleepHours());
-        existing.setDeepSleepHours(req.getDeepSleepHours());
-        existing.setLightSleepHours(req.getLightSleepHours());
-        existing.setNotes(req.getNotes());
+        if (req.getWaterLiters() != null) existing.setWaterLiters(req.getWaterLiters());
+        if (req.getWaterGoalLiters() != null) existing.setWaterGoalLiters(req.getWaterGoalLiters());
+        if (req.getSleepHours() != null) existing.setSleepHours(req.getSleepHours());
+        if (req.getSleepGoalHours() != null) existing.setSleepGoalHours(req.getSleepGoalHours());
+        if (req.getRemSleepHours() != null) existing.setRemSleepHours(req.getRemSleepHours());
+        if (req.getDeepSleepHours() != null) existing.setDeepSleepHours(req.getDeepSleepHours());
+        if (req.getLightSleepHours() != null) existing.setLightSleepHours(req.getLightSleepHours());
+        if (req.getSteps() != null) existing.setSteps(req.getSteps());
+        if (req.getNotes() != null) existing.setNotes(req.getNotes());
         return dailyStatRepository.save(existing);
     }
 

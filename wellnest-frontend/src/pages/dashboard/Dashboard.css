@@ -364,6 +364,48 @@
   transform: translateY(-1px);
 }
 
+.health-tip-card {
+  padding: 1.25rem 1.5rem;
+  border-radius: 1rem;
+  background: rgba(251, 191, 36, 0.08);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(251, 191, 36, 0.22);
+}
+
+.health-tip-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.6rem;
+}
+
+.health-tip-header h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #fef3c7;
+}
+
+.health-tip-icon {
+  width: 18px;
+  height: 18px;
+  color: #fbbf24;
+}
+
+.health-tip-card p {
+  margin: 0;
+  color: #fde68a;
+  line-height: 1.5;
+}
+
+.health-tip-source {
+  display: inline-block;
+  margin-top: 0.6rem;
+  font-size: 0.75rem;
+  color: #fcd34d;
+}
+
 /* ============================
    Welcome Section
    ============================ */
@@ -764,6 +806,56 @@
 
 .dashboard-empty-hint {
   color: #808098;
+  font-size: 0.85rem;
+}
+
+/* Steps Dashboard Card */
+.steps-dashboard-card {
+  display: block;
+  background: rgba(15, 15, 35, 0.95);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(52, 211, 153, 0.25);
+  border-radius: 1.5rem;
+  padding: 1.5rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  transition: all 0.3s;
+  text-decoration: none;
+  cursor: pointer;
+  max-width: 400px;
+}
+
+.steps-dashboard-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(52, 211, 153, 0.45);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+}
+
+.steps-dashboard-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.steps-dashboard-header h3 {
+  color: #fff;
+  font-weight: 600;
+  font-size: 1.25rem;
+  margin: 0;
+  flex: 1;
+}
+
+.steps-dashboard-value {
+  color: #34d399;
+  font-size: 2rem;
+  font-weight: 800;
+  line-height: 1.2;
+  margin-bottom: 0.35rem;
+}
+
+.steps-dashboard-hint {
+  color: #9ca3af;
   font-size: 0.85rem;
 }
 

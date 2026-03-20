@@ -34,6 +34,8 @@ public class DailyStat {
 
     private Double lightSleepHours; // Light sleep
 
+    private Integer steps; // daily step count synced from mobile
+
     private String notes;
 
     @CreatedDate

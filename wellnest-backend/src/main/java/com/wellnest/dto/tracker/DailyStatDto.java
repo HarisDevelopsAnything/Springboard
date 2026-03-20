@@ -12,5 +12,6 @@ public class DailyStatDto {
     private LocalDate date;
     private Double waterLiters;
     private Double sleepHours;
+    private Integer steps;
     private String notes;
 }

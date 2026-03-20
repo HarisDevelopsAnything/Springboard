@@ -1,7 +1,10 @@
 package com.wellnest.dto.tracker;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.AssertTrue;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -10,7 +13,12 @@ import java.time.LocalDate;
 @NoArgsConstructor @AllArgsConstructor @Builder
 public class DailyStatRequest {
     @NotNull
+    @JsonAlias({"day", "statDate"})
     private LocalDate date;
+
+    @Email
+    @JsonAlias({"userEmail", "mail"})
+    private String email;
 
     @Min(0)
     private Double waterLiters;
@@ -33,6 +41,23 @@ public class DailyStatRequest {
     @Min(0)
     private Double lightSleepHours;
 
+    @Min(0)
+    @JsonAlias({"stepCount", "stepsCount", "dailySteps", "step"})
+    private Integer steps;
+
     private String notes;
+
+    @AssertTrue(message = "At least one daily stat field is required")
+    public boolean hasAnyDailyStatField() {
+        return waterLiters != null
+                || waterGoalLiters != null
+                || sleepHours != null
+                || sleepGoalHours != null
+                || remSleepHours != null
+                || deepSleepHours != null
+                || lightSleepHours != null
+                || steps != null
+                || (notes != null && !notes.isBlank());
+    }
 }
 

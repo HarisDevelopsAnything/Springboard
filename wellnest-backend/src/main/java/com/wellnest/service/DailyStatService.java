@@ -21,6 +21,7 @@ public class DailyStatService {
                 .orElseGet(() -> DailyStat.builder().userId(userId).date(date).build());
         stat.setWaterLiters(req.getWaterLiters());
         stat.setSleepHours(req.getSleepHours());
+        stat.setSteps(req.getSteps());
         stat.setNotes(req.getNotes());
         DailyStat saved = dailyStatRepository.save(stat);
         return toDto(saved);
@@ -38,6 +39,7 @@ public class DailyStatService {
                 .date(s.getDate())
                 .waterLiters(s.getWaterLiters())
                 .sleepHours(s.getSleepHours())
+            .steps(s.getSteps())
                 .notes(s.getNotes())
                 .build();
     }

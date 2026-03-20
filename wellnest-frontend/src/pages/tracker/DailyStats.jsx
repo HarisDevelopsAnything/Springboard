@@ -7,7 +7,6 @@ import './DailyStats.css';
 export default function DailyStats() {
   const [stats, setStats] = useState([]);
   const [todayStat, setTodayStat] = useState(null);
-  const [waterInput, setWaterInput] = useState('');
   const [sleepInput, setSleepInput] = useState('');
   const [waterGoal, setWaterGoal] = useState(3);
   const [sleepGoal, setSleepGoal] = useState(8);
@@ -15,19 +14,41 @@ export default function DailyStats() {
   const [deepSleep, setDeepSleep] = useState('');
   const [lightSleep, setLightSleep] = useState('');
   const [notes, setNotes] = useState('');
-  const today = new Date().toISOString().slice(0, 10);
+  const getDateKey = (dateObj = new Date()) => {
+    const y = dateObj.getFullYear();
+    const m = String(dateObj.getMonth() + 1).padStart(2, '0');
+    const d = String(dateObj.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  };
+
+  const normalizeDateKey = (value) => {
+    if (!value) return null;
+    if (typeof value === 'string') {
+      return value.includes('T') ? value.split('T')[0] : value;
+    }
+    if (Array.isArray(value) && value.length >= 3) {
+      const [y, m, d] = value;
+      return `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+    }
+    return null;
+  };
+
+  const today = getDateKey();
 
   useEffect(() => { fetchStats(); }, []);
 
   const fetchStats = async () => {
     try {
       const res = await trackerService.listDailyStats();
-      setStats(res.data);
-      const found = res.data.find(s => s.date === today);
+      const rows = Array.isArray(res.data) ? res.data : [];
+      setStats(rows);
+      const found = rows.find(s => normalizeDateKey(s.date) === today);
       if (found) {
         setTodayStat(found);
         if (found.waterGoalLiters) setWaterGoal(found.waterGoalLiters);
         if (found.sleepGoalHours) setSleepGoal(found.sleepGoalHours);
+      } else {
+        setTodayStat(null);
       }
     } catch (e) { console.error(e); }
   };
@@ -41,6 +62,11 @@ export default function DailyStats() {
         waterLiters: newAmount,
         waterGoalLiters: waterGoal,
         sleepHours: todayStat?.sleepHours,
+        sleepGoalHours: todayStat?.sleepGoalHours,
+        remSleepHours: todayStat?.remSleepHours,
+        deepSleepHours: todayStat?.deepSleepHours,
+        lightSleepHours: todayStat?.lightSleepHours,
+        steps: todayStat?.steps,
         notes: todayStat?.notes || '',
       });
       fetchStats();
@@ -59,6 +85,7 @@ export default function DailyStats() {
         remSleepHours: remSleep ? parseFloat(remSleep) : null,
         deepSleepHours: deepSleep ? parseFloat(deepSleep) : null,
         lightSleepHours: lightSleep ? parseFloat(lightSleep) : null,
+        steps: todayStat?.steps,
         notes: notes,
       });
       setSleepInput('');
@@ -83,6 +110,7 @@ export default function DailyStats() {
         remSleepHours: todayStat?.remSleepHours,
         deepSleepHours: todayStat?.deepSleepHours,
         lightSleepHours: todayStat?.lightSleepHours,
+        steps: todayStat?.steps,
         notes: todayStat?.notes || '',
       });
       fetchStats();
@@ -102,6 +130,7 @@ export default function DailyStats() {
         remSleepHours: todayStat?.remSleepHours,
         deepSleepHours: todayStat?.deepSleepHours,
         lightSleepHours: todayStat?.lightSleepHours,
+        steps: todayStat?.steps,
         notes: todayStat?.notes || '',
       });
       fetchStats();
@@ -113,6 +142,7 @@ export default function DailyStats() {
   const currentRem = todayStat?.remSleepHours || 0;
   const currentDeep = todayStat?.deepSleepHours || 0;
   const currentLight = todayStat?.lightSleepHours || 0;
+  const currentSteps = todayStat?.steps || 0;
 
   return (
     <div className="daily-stats-page">
@@ -148,6 +178,13 @@ export default function DailyStats() {
               </div>
             </div>
           </div>
+        </div>
+
+        <div className="steps-card">
+          <h3 className="card-title">👟 Steps Today</h3>
+          <div className="steps-value">{currentSteps.toLocaleString()}</div>
+          <div className="steps-subtitle">Synced from mobile app</div>
+          <button className="quick-btn" onClick={fetchStats}>Refresh</button>
         </div>
 
         <div className="sleep-card">
@@ -253,6 +290,7 @@ export default function DailyStats() {
                     </span>
                   ) : null}
                 </span>
+                <span className="history-steps">👟 {s.steps ?? '-'} steps</span>
               </div>
               {s.notes && <div className="history-notes">{s.notes}</div>}
             </div>
