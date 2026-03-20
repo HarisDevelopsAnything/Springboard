@@ -211,7 +211,7 @@ const WeightTracker = () => {
             )}
           </div>
 
-          {chartData.length > 1 && (
+          {chartData.length > 0 && (
             <div className="weight-chart">
               <h3>Weight Progress Chart</h3>
               {trend && trend.status !== 'stable' && (
@@ -229,7 +229,7 @@ const WeightTracker = () => {
                   <span>{minWeight.toFixed(0)}</span>
                 </div>
                 <div className="chart-area">
-                  <svg className="chart-svg" viewBox={`0 0 ${chartData.length * 40} 200`}>
+                  <svg className="chart-svg" viewBox={`0 0 ${Math.max(chartData.length * 40, 80)} 200`}>
                     {/* Gradient definition */}
                     <defs>
                       <linearGradient id="areaGradient" x1="0%" y1="0%" x2="0%" y2="100%">
@@ -237,7 +237,6 @@ const WeightTracker = () => {
                         <stop offset="100%" stopColor="rgba(15, 23, 42, 0)" />
                       </linearGradient>
                     </defs>
-
                     {/* Grid lines */}
                     <line x1="0" y1="0" x2={chartData.length * 40} y2="0" stroke="#e2e8f0" strokeWidth="1" />
                     <line x1="0" y1="100" x2={chartData.length * 40} y2="100" stroke="#e2e8f0" strokeWidth="1" />
@@ -278,6 +277,10 @@ const WeightTracker = () => {
                       );
                     })}
                   </svg>
+                  <div className="chart-x-axis">
+                    <span>{new Date(chartData[0].date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+                    <span>{new Date(chartData[chartData.length - 1].date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+                  </div>
                 </div>
               </div>
             </div>

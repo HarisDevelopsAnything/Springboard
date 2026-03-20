@@ -444,6 +444,8 @@
 
 /* Section title */
 .section-title {
+  position: relative;
+  z-index: 2;
   font-size: 1.25rem;
   font-weight: 600;
   color: #fff;
@@ -687,6 +689,20 @@
   margin: 0;
   max-width: 500px;
 }
+
+.vitals-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem;
+}
+
+.vitals-grid .water-dashboard-card,
+.vitals-grid .nutrition-dashboard-card,
+.vitals-grid .sleep-dashboard-card,
+.vitals-grid .steps-dashboard-card {
+  max-width: none;
+  height: 100%;
+}
 /* Water Dashboard Card */
 .water-dashboard-card,
 .nutrition-dashboard-card {
@@ -809,6 +825,44 @@
   font-size: 0.85rem;
 }
 
+/* Workout Dashboard Card */
+.workout-dashboard-card {
+  display: block;
+  background: rgba(15, 15, 35, 0.95);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: 1.5rem;
+  padding: 1.5rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  transition: all 0.3s;
+  text-decoration: none;
+  cursor: pointer;
+  position: relative;
+  z-index: 1;
+}
+
+.workout-dashboard-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(239, 68, 68, 0.4);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+}
+
+.workout-dashboard-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.workout-dashboard-header h3 {
+  color: #fff;
+  font-weight: 600;
+  font-size: 1.25rem;
+  margin: 0;
+  flex: 1;
+}
+
 /* Steps Dashboard Card */
 .steps-dashboard-card {
   display: block;
@@ -860,6 +914,10 @@
 }
 
 @media (max-width: 600px) {
+  .vitals-grid {
+    grid-template-columns: 1fr;
+  }
+
   .report-section {
     padding: 1.5rem 1rem;
     margin-top: 1.5rem;

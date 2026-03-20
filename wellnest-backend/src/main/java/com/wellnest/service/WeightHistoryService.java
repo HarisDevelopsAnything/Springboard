@@ -22,16 +22,16 @@ public class WeightHistoryService {
     private final BmiService bmiService;
 
     public WeightHistoryDto addWeightEntry(String userId, WeightEntryRequest request) {
-        // Get user's height from fitness profile
-        FitnessProfile profile = fitnessProfileRepository.findByUserId(userId)
-                .orElseThrow(() -> new RuntimeException("Please complete your fitness profile first"));
-
-        if (profile.getHeight() == null || profile.getHeight() <= 0) {
-            throw new RuntimeException("Height is required in your fitness profile");
+        if (request.getWeight() == null || request.getWeight() <= 0) {
+            throw new RuntimeException("Please enter a valid weight");
         }
 
-        // Calculate BMI
-        BmiCalculationResponse bmiCalc = bmiService.calculateBmi(request.getWeight(), profile.getHeight());
+        // Get user's profile if present. BMI can be calculated only when height exists.
+        FitnessProfile profile = fitnessProfileRepository.findByUserId(userId).orElse(null);
+        BmiCalculationResponse bmiCalc = null;
+        if (profile != null && profile.getHeight() != null && profile.getHeight() > 0) {
+            bmiCalc = bmiService.calculateBmi(request.getWeight(), profile.getHeight());
+        }
 
         // Check if entry for this date already exists
         LocalDate date = request.getDate() != null ? request.getDate() : LocalDate.now();
@@ -41,8 +41,8 @@ public class WeightHistoryService {
         if (existing != null) {
             // Update existing entry
             existing.setWeight(request.getWeight());
-            existing.setBmi(bmiCalc.getBmi());
-            existing.setBmiCategory(bmiCalc.getCategory());
+            existing.setBmi(bmiCalc != null ? bmiCalc.getBmi() : null);
+            existing.setBmiCategory(bmiCalc != null ? bmiCalc.getCategory() : null);
             existing.setNotes(request.getNotes());
             weightHistory = weightHistoryRepository.save(existing);
         } else {
@@ -51,16 +51,18 @@ public class WeightHistoryService {
                     .userId(userId)
                     .date(date)
                     .weight(request.getWeight())
-                    .bmi(bmiCalc.getBmi())
-                    .bmiCategory(bmiCalc.getCategory())
+                    .bmi(bmiCalc != null ? bmiCalc.getBmi() : null)
+                    .bmiCategory(bmiCalc != null ? bmiCalc.getCategory() : null)
                     .notes(request.getNotes())
                     .build();
             weightHistory = weightHistoryRepository.save(weightHistory);
         }
 
-        // Update fitness profile with latest weight
-        profile.setWeight(request.getWeight());
-        fitnessProfileRepository.save(profile);
+        // Update fitness profile with latest weight when profile exists
+        if (profile != null) {
+            profile.setWeight(request.getWeight());
+            fitnessProfileRepository.save(profile);
+        }
 
         return mapToDto(weightHistory);
     }

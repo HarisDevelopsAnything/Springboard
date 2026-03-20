@@ -282,6 +282,15 @@
   height: 200px;
 }
 
+.chart-x-axis {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.5rem;
+  color: #94a3b8;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
 .weight-history-list {
   background: rgba(30, 30, 60, 0.6);
   border-radius: 16px;

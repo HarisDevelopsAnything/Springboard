@@ -517,78 +517,75 @@ const Dashboard = () => {
           })}
         </div>
 
-        {/* Nutrition Card */}
-        <div>
-          <h2 className="section-title">Today's Nutrition</h2>
-          <Link to="/tracker/meals" className="nutrition-dashboard-card">
-            <div className="nutrition-dashboard-header">
-              <UtensilsCrossed style={{ width: 24, height: 24, color: '#f59e0b' }} />
-              <h3>Meal Tracker</h3>
-              <span className="nutrition-calories">{todayNutrients.calories} kcal</span>
-            </div>
-            <NutrientBars 
-              protein={todayNutrients.protein} 
-              carbs={todayNutrients.carbs} 
-              fats={todayNutrients.fats} 
-              compact 
-            />
-          </Link>
-        </div>
-
-        {/* Water Intake Card */}
-        <div>
-          <h2 className="section-title">Today's Hydration</h2>
-          <Link to="/tracker/daily-stats" className="water-dashboard-card">
-            <div className="water-dashboard-header">
-              <Droplets style={{ width: 24, height: 24, color: '#60a5fa' }} />
-              <h3>Water Intake</h3>
-            </div>
-            <WaterWave current={todayWater.current} goal={todayWater.goal} compact />
-          </Link>
-        </div>
-
-        {/* Sleep Card */}
-        <div>
-          <h2 className="section-title">Today's Sleep</h2>
-          <Link to="/tracker/daily-stats" className="sleep-dashboard-card">
-            <div className="sleep-dashboard-header">
-              <Moon style={{ width: 24, height: 24, color: '#c084fc' }} />
-              <h3>Sleep Quality</h3>
-            </div>
-            {todaySleep.total > 0 ? (
-              <SleepStages 
-                total={todaySleep.total}
-                goal={todaySleep.goal}
-                rem={todaySleep.rem}
-                deep={todaySleep.deep}
-                light={todaySleep.light}
-                compact
-              />
-            ) : (
-              <div className="dashboard-empty-state">
-                <p>No sleep data logged yet</p>
-                <span className="dashboard-empty-hint">Tap to add from your fitness band</span>
+        <div className="vitals-grid">
+          {/* Steps Card */}
+          <div>
+            <Link to="/tracker/daily-stats" className="steps-dashboard-card">
+              <div className="steps-dashboard-header">
+                <Footprints style={{ width: 24, height: 24, color: '#34d399' }} />
+                <h3>Step Count</h3>
               </div>
-            )}
-          </Link>
-        </div>
+              <div className="steps-dashboard-value">{todaySteps.toLocaleString()} steps</div>
+              <span className="steps-dashboard-hint">From DailyStats ({getDateKey()})</span>
+            </Link>
+          </div>
 
-        {/* Steps Card */}
-        <div>
-          <h2 className="section-title">Today's Steps</h2>
-          <Link to="/tracker/daily-stats" className="steps-dashboard-card">
-            <div className="steps-dashboard-header">
-              <Footprints style={{ width: 24, height: 24, color: '#34d399' }} />
-              <h3>Step Count</h3>
-            </div>
-            <div className="steps-dashboard-value">{todaySteps.toLocaleString()} steps</div>
-            <span className="steps-dashboard-hint">From DailyStats ({getDateKey()})</span>
-          </Link>
+          {/* Water Intake Card */}
+          <div>
+            <Link to="/tracker/daily-stats" className="water-dashboard-card">
+              <div className="water-dashboard-header">
+                <Droplets style={{ width: 24, height: 24, color: '#60a5fa' }} />
+                <h3>Water Intake</h3>
+              </div>
+              <WaterWave current={todayWater.current} goal={todayWater.goal} compact />
+            </Link>
+          </div>
+
+          {/* Sleep Card */}
+          <div>
+            <Link to="/tracker/daily-stats" className="sleep-dashboard-card">
+              <div className="sleep-dashboard-header">
+                <Moon style={{ width: 24, height: 24, color: '#c084fc' }} />
+                <h3>Sleep Quality</h3>
+              </div>
+              {todaySleep.total > 0 ? (
+                <SleepStages 
+                  total={todaySleep.total}
+                  goal={todaySleep.goal}
+                  rem={todaySleep.rem}
+                  deep={todaySleep.deep}
+                  light={todaySleep.light}
+                  compact
+                />
+              ) : (
+                <div className="dashboard-empty-state">
+                  <p>No sleep data logged yet</p>
+                  <span className="dashboard-empty-hint">Tap to add from your fitness band</span>
+                </div>
+              )}
+            </Link>
+          </div>
+
+          {/* Calories Card */}
+          <div>
+            <Link to="/tracker/meals" className="nutrition-dashboard-card">
+              <div className="nutrition-dashboard-header">
+                <UtensilsCrossed style={{ width: 24, height: 24, color: '#f59e0b' }} />
+                <h3>Meal Tracker</h3>
+                <span className="nutrition-calories">{todayNutrients.calories} kcal</span>
+              </div>
+              <NutrientBars 
+                protein={todayNutrients.protein} 
+                carbs={todayNutrients.carbs} 
+                fats={todayNutrients.fats} 
+                compact 
+              />
+            </Link>
+          </div>
         </div>
 
         {/* Workout Card */}
         <div>
-          <h2 className="section-title">Today's Workout</h2>
           <Link to="/tracker/workouts" className="workout-dashboard-card">
             <div className="workout-dashboard-header">
               <Dumbbell style={{ width: 24, height: 24, color: '#ef4444' }} />

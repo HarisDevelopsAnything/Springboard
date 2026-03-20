@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import trackerService from '../../services/trackerService';
 import WaterWave from '../../components/WaterWave';
 import SleepStages from '../../components/SleepStages';
+import { toast } from 'react-toastify';
 import './DailyStats.css';
 
 export default function DailyStats() {
@@ -50,33 +51,44 @@ export default function DailyStats() {
       } else {
         setTodayStat(null);
       }
-    } catch (e) { console.error(e); }
+    } catch (e) {
+      console.error(e);
+      toast.error('Failed to fetch daily stats');
+    }
   };
+
+  const compactPayload = (payload) =>
+    Object.fromEntries(
+      Object.entries(payload).filter(([, value]) => value !== undefined)
+    );
 
   const updateWater = async (amount) => {
     const current = todayStat?.waterLiters || 0;
     const newAmount = Math.max(0, current + amount);
     try {
-      await trackerService.upsertDailyStat({
+      await trackerService.upsertDailyStat(compactPayload({
         date: today,
         waterLiters: newAmount,
         waterGoalLiters: waterGoal,
-        sleepHours: todayStat?.sleepHours,
-        sleepGoalHours: todayStat?.sleepGoalHours,
+        sleepHours: todayStat?.sleepHours ?? 0,
+        sleepGoalHours: todayStat?.sleepGoalHours ?? sleepGoal,
         remSleepHours: todayStat?.remSleepHours,
         deepSleepHours: todayStat?.deepSleepHours,
         lightSleepHours: todayStat?.lightSleepHours,
         steps: todayStat?.steps,
         notes: todayStat?.notes || '',
-      });
+      }));
       fetchStats();
-    } catch (e) { console.error(e); }
+    } catch (e) {
+      console.error(e);
+      toast.error(e?.response?.data?.message || 'Failed to update hydration');
+    }
   };
 
   const saveSleep = async () => {
     if (!sleepInput) return;
     try {
-      await trackerService.upsertDailyStat({
+      await trackerService.upsertDailyStat(compactPayload({
         date: today,
         waterLiters: todayStat?.waterLiters,
         waterGoalLiters: waterGoal,
@@ -87,14 +99,17 @@ export default function DailyStats() {
         lightSleepHours: lightSleep ? parseFloat(lightSleep) : null,
         steps: todayStat?.steps,
         notes: notes,
-      });
+      }));
       setSleepInput('');
       setRemSleep('');
       setDeepSleep('');
       setLightSleep('');
       setNotes('');
       fetchStats();
-    } catch (e) { console.error(e); }
+    } catch (e) {
+      console.error(e);
+      toast.error(e?.response?.data?.message || 'Failed to save sleep data');
+    }
   };
 
   const updateGoal = async (newGoal) => {
@@ -103,7 +118,7 @@ export default function DailyStats() {
     const clamped = Math.max(2, Math.min(6, parsedGoal));
     setWaterGoal(clamped);
     try {
-      await trackerService.upsertDailyStat({
+      await trackerService.upsertDailyStat(compactPayload({
         date: today,
         waterLiters: todayStat?.waterLiters || 0,
         waterGoalLiters: clamped,
@@ -114,9 +129,12 @@ export default function DailyStats() {
         lightSleepHours: todayStat?.lightSleepHours,
         steps: todayStat?.steps,
         notes: todayStat?.notes || '',
-      });
+      }));
       fetchStats();
-    } catch (e) { console.error(e); }
+    } catch (e) {
+      console.error(e);
+      toast.error(e?.response?.data?.message || 'Failed to update hydration goal');
+    }
   };
 
   const updateSleepGoal = async (newGoal) => {
@@ -125,7 +143,7 @@ export default function DailyStats() {
     const clamped = Math.max(6, Math.min(10, parsedGoal));
     setSleepGoal(clamped);
     try {
-      await trackerService.upsertDailyStat({
+      await trackerService.upsertDailyStat(compactPayload({
         date: today,
         waterLiters: todayStat?.waterLiters,
         waterGoalLiters: waterGoal,
@@ -136,9 +154,12 @@ export default function DailyStats() {
         lightSleepHours: todayStat?.lightSleepHours,
         steps: todayStat?.steps,
         notes: todayStat?.notes || '',
-      });
+      }));
       fetchStats();
-    } catch (e) { console.error(e); }
+    } catch (e) {
+      console.error(e);
+      toast.error(e?.response?.data?.message || 'Failed to update sleep goal');
+    }
   };
 
   const currentWater = todayStat?.waterLiters || 0;
