@@ -1,11 +1,14 @@
 import axios from 'axios';
 
 const isLocalHost = ['localhost', '127.0.0.1'].includes(window.location.hostname);
+const configuredApiUrl = import.meta.env.VITE_API_URL;
+const isConfiguredLocalUrl =
+  typeof configuredApiUrl === 'string' && /localhost|127\.0\.0\.1/.test(configuredApiUrl);
+
 const API_BASE_URL =
-  import.meta.env.VITE_API_URL ||
-  (isLocalHost
-    ? '/api'
-    : 'https://wellnest-backend-n1ya.onrender.com/api');
+  !isLocalHost && isConfiguredLocalUrl
+    ? 'https://wellnest-backend-n1ya.onrender.com/api'
+    : (configuredApiUrl || (isLocalHost ? '/api' : 'https://wellnest-backend-n1ya.onrender.com/api'));
 
 const api = axios.create({
   baseURL: API_BASE_URL,
