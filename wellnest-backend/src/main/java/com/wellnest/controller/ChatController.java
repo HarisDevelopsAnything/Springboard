@@ -59,6 +59,45 @@ public class ChatController {
         }
     }
 
+    @GetMapping("/unread/count")
+    public ResponseEntity<Map<String, Object>> getUnreadCount(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestParam(name = "keepArchivedChats", defaultValue = "true") boolean keepArchivedChats) {
+        try {
+            Long unreadCount = chatService.getUnreadCount(userDetails.getId(), keepArchivedChats);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("data", unreadCount);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
+    @PutMapping("/conversation/{otherUserId}/read")
+    public ResponseEntity<Map<String, Object>> markConversationAsRead(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable String otherUserId) {
+        try {
+            chatService.markConversationAsRead(userDetails.getId(), otherUserId);
+            Long unreadCount = chatService.getUnreadCount(userDetails.getId(), true);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("data", unreadCount);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
     @DeleteMapping("/{messageId}/for-me")
     public ResponseEntity<Map<String, Object>> deleteForMe(
             @AuthenticationPrincipal CustomUserDetails userDetails,

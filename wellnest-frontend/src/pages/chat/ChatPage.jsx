@@ -99,7 +99,8 @@ const ChatPage = () => {
           const mappedContacts = list.map((c) => ({
             id: c.id,
             name: c.fullName || c.username,
-            role: c.role
+            role: c.role,
+            unreadCount: Number(c.unreadCount || 0)
           }));
           setContacts(mappedContacts);
 
@@ -115,7 +116,8 @@ const ChatPage = () => {
           const traineeContact = {
             id: trainer.id,
             name: trainer.fullName || trainer.username,
-            role: 'ROLE_TRAINER'
+            role: 'ROLE_TRAINER',
+            unreadCount: 0
           };
           setContacts([traineeContact]);
           setSelectedContactId(trainer.id);
@@ -139,6 +141,22 @@ const ChatPage = () => {
       const result = await chatService.getConversation(otherId);
       if (result.success) {
         setMessages(result.data || []);
+        setContacts((prev) => prev.map((c) => (
+          c.id === otherId ? { ...c, unreadCount: 0 } : c
+        )));
+
+        try {
+          const markReadResult = await chatService.markChatAsRead(otherId);
+          const unreadCount = markReadResult?.success
+            ? Number(markReadResult.data || 0)
+            : 0;
+
+          window.dispatchEvent(new CustomEvent('chat:read-updated', {
+            detail: { count: unreadCount }
+          }));
+        } catch {
+          window.dispatchEvent(new Event('chat:read-updated'));
+        }
       }
     } catch (error) {
       console.error('Failed to load messages:', error);
@@ -173,6 +191,9 @@ const ChatPage = () => {
     setSelectedContactId(contactId);
     setMessages([]);
     setActiveMenuMessageId('');
+    setContacts((prev) => prev.map((c) => (
+      c.id === contactId ? { ...c, unreadCount: 0 } : c
+    )));
     localStorage.setItem(selectedContactKey, contactId);
   };
 
@@ -253,7 +274,14 @@ const ChatPage = () => {
                       <FiUser />
                     </div>
                     <div className="member-meta">
-                      <strong>{contact.name}</strong>
+                      <strong>
+                        {contact.name}
+                        {Number(contact.unreadCount) > 0 && (
+                          <span className="member-unread-badge">
+                            {contact.unreadCount > 99 ? '99+' : contact.unreadCount}
+                          </span>
+                        )}
+                      </strong>
                       <span>{contact.role === 'ROLE_TRAINER' ? 'Trainer' : 'Trainee'}</span>
                     </div>
                   </button>

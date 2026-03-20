@@ -177,14 +177,19 @@
   border: 2px solid;
 }
 
-.trend-card.trend-down {
+.trend-card.trend-improving {
   border-color: #10b981;
   color: #047857;
 }
 
-.trend-card.trend-up {
-  border-color: #f59e0b;
-  color: #d97706;
+.trend-card.trend-deproving {
+  border-color: #ef4444;
+  color: #b91c1c;
+}
+
+.trend-card.trend-stable {
+  border-color: #94a3b8;
+  color: #475569;
 }
 
 .stat-card h3 {
@@ -222,10 +227,31 @@
 .weight-chart h3 {
   font-size: 1.25rem;
   font-weight: 800;
-  color: #f8fafc;
+  color: #0f172a;
   margin: 0 0 1.5rem 0;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+}
+
+.chart-trend-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 0.4rem 0.8rem;
+  margin-bottom: 1rem;
+}
+
+.chart-trend-label.improving {
+  color: #047857;
+  background: rgba(16, 185, 129, 0.18);
+}
+
+.chart-trend-label.deproving {
+  color: #b91c1c;
+  background: rgba(239, 68, 68, 0.15);
 }
 
 .chart-container {

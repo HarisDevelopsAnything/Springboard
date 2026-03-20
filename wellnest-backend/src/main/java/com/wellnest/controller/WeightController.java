@@ -3,12 +3,12 @@ package com.wellnest.controller;
 import com.wellnest.dto.bmi.BmiCalculationResponse;
 import com.wellnest.dto.weight.WeightEntryRequest;
 import com.wellnest.dto.weight.WeightHistoryDto;
+import com.wellnest.security.CustomUserDetails;
 import com.wellnest.service.BmiService;
 import com.wellnest.service.WeightHistoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -25,10 +25,10 @@ public class WeightController {
 
     @PostMapping("/add")
     public ResponseEntity<Map<String, Object>> addWeight(
-            @AuthenticationPrincipal UserDetails userDetails,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody WeightEntryRequest request) {
         try {
-            String userId = userDetails.getUsername();
+            String userId = userDetails.getId();
             WeightHistoryDto weightHistory = weightHistoryService.addWeightEntry(userId, request);
             
             Map<String, Object> response = new HashMap<>();
@@ -46,9 +46,9 @@ public class WeightController {
 
     @GetMapping("/history")
     public ResponseEntity<Map<String, Object>> getHistory(
-            @AuthenticationPrincipal UserDetails userDetails) {
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
         try {
-            String userId = userDetails.getUsername();
+            String userId = userDetails.getId();
             List<WeightHistoryDto> history = weightHistoryService.getWeightHistory(userId);
             
             Map<String, Object> response = new HashMap<>();
@@ -65,11 +65,11 @@ public class WeightController {
 
     @GetMapping("/history/range")
     public ResponseEntity<Map<String, Object>> getHistoryRange(
-            @AuthenticationPrincipal UserDetails userDetails,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestParam String startDate,
             @RequestParam String endDate) {
         try {
-            String userId = userDetails.getUsername();
+            String userId = userDetails.getId();
             LocalDate start = LocalDate.parse(startDate);
             LocalDate end = LocalDate.parse(endDate);
             List<WeightHistoryDto> history = weightHistoryService.getWeightHistoryRange(userId, start, end);
@@ -88,10 +88,10 @@ public class WeightController {
 
     @DeleteMapping("/{entryId}")
     public ResponseEntity<Map<String, Object>> deleteEntry(
-            @AuthenticationPrincipal UserDetails userDetails,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable String entryId) {
         try {
-            String userId = userDetails.getUsername();
+            String userId = userDetails.getId();
             weightHistoryService.deleteWeightEntry(userId, entryId);
             
             Map<String, Object> response = new HashMap<>();

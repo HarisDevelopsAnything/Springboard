@@ -86,9 +86,13 @@ const WeightTracker = () => {
     const latest = weightHistory[0].weight;
     const previous = weightHistory[1].weight;
     const diff = latest - previous;
+
+    const status = diff < 0 ? 'improving' : diff > 0 ? 'deproving' : 'stable';
     return {
       direction: diff > 0 ? 'up' : diff < 0 ? 'down' : 'stable',
-      value: Math.abs(diff).toFixed(1)
+      status,
+      value: Math.abs(diff).toFixed(1),
+      rawDiff: diff
     };
   };
 
@@ -103,6 +107,16 @@ const WeightTracker = () => {
   };
 
   const trend = getWeightTrend();
+  const chartStroke = trend?.status === 'improving'
+    ? '#10b981'
+    : trend?.status === 'deproving'
+      ? '#ef4444'
+      : '#94a3b8';
+  const chartFill = trend?.status === 'improving'
+    ? 'rgba(16, 185, 129, 0.18)'
+    : trend?.status === 'deproving'
+      ? 'rgba(239, 68, 68, 0.18)'
+      : 'rgba(148, 163, 184, 0.18)';
 
   // Prepare chart data (last 30 entries)
   const chartData = weightHistory.slice(0, 30).reverse();
@@ -176,20 +190,22 @@ const WeightTracker = () => {
             <div className="stat-card current-weight">
               <h3>Current Weight</h3>
               <div className="stat-value">{weightHistory[0].weight} kg</div>
-              <div className="stat-subtitle"style={{ color: getBmiColor(weightHistory[0].bmiCategory) }}>
+              <div className="stat-subtitle" style={{ color: getBmiColor(weightHistory[0].bmiCategory) }}>
                 BMI: {weightHistory[0].bmi} ({weightHistory[0].bmiCategory})
               </div>
             </div>
 
             {trend && (
-              <div className={`stat-card trend-card trend-${trend.direction}`}>
+              <div className={`stat-card trend-card trend-${trend.status}`}>
                 <h3>Weight Change</h3>
                 <div className="stat-value">
-                  {trend.direction === 'up' ? <FiTrendingUp /> : <FiTrendingDown />}
+                  {trend.status === 'deproving' ? <FiTrendingUp /> : <FiTrendingDown />}
                   {trend.value} kg
                 </div>
                 <div className="stat-subtitle">
-                  Since last entry
+                  {trend.status === 'improving' && 'Improving trend (down)'}
+                  {trend.status === 'deproving' && 'Deproving trend (up)'}
+                  {trend.status === 'stable' && 'Stable trend'}
                 </div>
               </div>
             )}
@@ -198,6 +214,14 @@ const WeightTracker = () => {
           {chartData.length > 1 && (
             <div className="weight-chart">
               <h3>Weight Progress Chart</h3>
+              {trend && trend.status !== 'stable' && (
+                <div className={`chart-trend-label ${trend.status}`}>
+                  {trend.status === 'improving' ? <FiTrendingDown /> : <FiTrendingUp />}
+                  <span>
+                    {trend.status === 'improving' ? 'Improving' : 'Deproving'} by {Math.abs(trend.rawDiff).toFixed(1)} kg
+                  </span>
+                </div>
+              )}
               <div className="chart-container">
                 <div className="chart-y-axis">
                   <span>{maxWeight.toFixed(0)}</span>
@@ -206,15 +230,33 @@ const WeightTracker = () => {
                 </div>
                 <div className="chart-area">
                   <svg className="chart-svg" viewBox={`0 0 ${chartData.length * 40} 200`}>
+                    {/* Gradient definition */}
+                    <defs>
+                      <linearGradient id="areaGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stopColor={chartFill} />
+                        <stop offset="100%" stopColor="rgba(15, 23, 42, 0)" />
+                      </linearGradient>
+                    </defs>
+
                     {/* Grid lines */}
                     <line x1="0" y1="0" x2={chartData.length * 40} y2="0" stroke="#e2e8f0" strokeWidth="1" />
                     <line x1="0" y1="100" x2={chartData.length * 40} y2="100" stroke="#e2e8f0" strokeWidth="1" />
                     <line x1="0" y1="200" x2={chartData.length * 40} y2="200" stroke="#e2e8f0" strokeWidth="1" />
+
+                    {/* Area fill under chart */}
+                    <polygon
+                      points={`20,200 ${chartData.map((entry, index) => {
+                        const x = index * 40 + 20;
+                        const y = 200 - ((entry.weight - minWeight) / range) * 180;
+                        return `${x},${y}`;
+                      }).join(' ')} ${(chartData.length - 1) * 40 + 20},200`}
+                      fill="url(#areaGradient)"
+                    />
                     
                     {/* Line chart */}
                     <polyline
                       fill="none"
-                      stroke="url(#gradient)"
+                      stroke={chartStroke}
                       strokeWidth="3"
                       points={chartData.map((entry, index) => {
                         const x = index * 40 + 20;
@@ -227,21 +269,14 @@ const WeightTracker = () => {
                     {chartData.map((entry, index) => {
                       const x = index * 40 + 20;
                       const y = 200 - ((entry.weight - minWeight) / range) * 180;
+                      const isLastPoint = index === chartData.length - 1;
                       return (
                         <g key={index}>
-                          <circle cx={x} cy={y} r="5" fill="#667eea" />
+                          <circle cx={x} cy={y} r={isLastPoint ? '6' : '5'} fill={isLastPoint ? chartStroke : '#667eea'} />
                           <title>{`${entry.date}: ${entry.weight} kg`}</title>
                         </g>
                       );
                     })}
-                    
-                    {/* Gradient definition */}
-                    <defs>
-                      <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%" stopColor="#667eea" />
-                        <stop offset="100%" stopColor="#764ba2" />
-                      </linearGradient>
-                    </defs>
                   </svg>
                 </div>
               </div>

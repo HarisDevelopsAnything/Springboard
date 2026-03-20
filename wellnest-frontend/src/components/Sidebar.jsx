@@ -1,5 +1,7 @@
+import { useEffect, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import chatService from '../services/chatService';
 import {
   LayoutDashboard,
   User,
@@ -60,6 +62,67 @@ const SIDEBAR_NARROW = 72;
 const Sidebar = ({ collapsed, setCollapsed, mobileOpen, setMobileOpen }) => {
   const { user, logout } = useAuth();
   const location = useLocation();
+  const [chatUnreadCount, setChatUnreadCount] = useState(0);
+
+  useEffect(() => {
+    if (!user?.id) {
+      setChatUnreadCount(0);
+      return;
+    }
+
+    let mounted = true;
+
+    const loadUnreadCount = async () => {
+      try {
+        const result = await chatService.getUnreadCount();
+        if (mounted && result?.success) {
+          setChatUnreadCount(Number(result.data || 0));
+        }
+      } catch {
+        if (mounted) {
+          setChatUnreadCount(0);
+        }
+      }
+    };
+
+    const onReadUpdated = (event) => {
+      const eventCount = Number(event?.detail?.count);
+      if (Number.isFinite(eventCount)) {
+        setChatUnreadCount(eventCount);
+        return;
+      }
+
+      loadUnreadCount();
+    };
+
+    const onVisibilityOrFocus = () => {
+      if (document.visibilityState === 'visible') {
+        loadUnreadCount();
+      }
+    };
+
+    window.addEventListener('chat:read-updated', onReadUpdated);
+    window.addEventListener('focus', onVisibilityOrFocus);
+    document.addEventListener('visibilitychange', onVisibilityOrFocus);
+    loadUnreadCount();
+    const interval = setInterval(loadUnreadCount, 15000);
+
+    return () => {
+      mounted = false;
+      clearInterval(interval);
+      window.removeEventListener('chat:read-updated', onReadUpdated);
+      window.removeEventListener('focus', onVisibilityOrFocus);
+      document.removeEventListener('visibilitychange', onVisibilityOrFocus);
+    };
+  }, [user?.id, location.pathname]);
+
+  const handleNavClick = (path) => {
+    setMobileOpen(false);
+
+    if (path === '/chat') {
+      window.dispatchEvent(new Event('chat:read-updated'));
+    }
+  };
 
   // On mobile: show/hide via mobileOpen. On desktop: always visible, toggle width via collapsed.
   return (
@@ -168,6 +231,7 @@ const Sidebar = ({ collapsed, setCollapsed, mobileOpen, setMobileOpen }) => {
       textDecoration: 'none',
       transition: 'all 0.2s',
       cursor: 'pointer',
+      position: 'relative',
     };
 
     const activeStyle = {
@@ -231,13 +295,60 @@ const Sidebar = ({ collapsed, setCollapsed, mobileOpen, setMobileOpen }) => {
               <NavLink
                 key={item.path}
                 to={item.path}
-                onClick={() => setMobileOpen(false)}
+                onClick={() => handleNavClick(item.path)}
                 style={isActive ? { ...activeStyle, justifyContent: isCollapsed ? 'center' : undefined } : { ...inactiveStyle, justifyContent: isCollapsed ? 'center' : undefined }}
                 title={isCollapsed ? item.label : undefined}
               >
                 <Icon style={{ width: 20, height: 20, flexShrink: 0 }} />
                 {!isCollapsed && (
-                  <span style={{ fontSize: '0.875rem', fontWeight: 500 }}>{item.label}</span>
+                  <>
+                    <span style={{ fontSize: '0.875rem', fontWeight: 500 }}>{item.label}</span>
+                    {item.path === '/chat' && chatUnreadCount > 0 && (
+                      <span
+                        style={{
+                          marginLeft: 'auto',
+                          minWidth: 18,
+                          height: 18,
+                          borderRadius: 999,
+                          padding: '0 6px',
+                          background: '#ef4444',
+                          color: '#fff',
+                          fontSize: '0.7rem',
+                          fontWeight: 700,
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          lineHeight: 1,
+                        }}
+                      >
+                        {chatUnreadCount > 99 ? '99+' : chatUnreadCount}
+                      </span>
+                    )}
+                  </>
+                )}
+
+                {isCollapsed && item.path === '/chat' && chatUnreadCount > 0 && (
+                  <span
+                    style={{
+                      position: 'absolute',
+                      top: 6,
+                      right: 8,
+                      minWidth: 16,
+                      height: 16,
+                      borderRadius: 999,
+                      padding: '0 4px',
+                      background: '#ef4444',
+                      color: '#fff',
+                      fontSize: '0.62rem',
+                      fontWeight: 700,
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      lineHeight: 1,
+                    }}
+                  >
+                    {chatUnreadCount > 99 ? '99+' : chatUnreadCount}
+                  </span>
                 )}
               </NavLink>
             );

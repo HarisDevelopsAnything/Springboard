@@ -3,6 +3,7 @@ package com.wellnest.entity;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.ArrayList;
@@ -23,6 +24,9 @@ public class ChatMessage {
     private String receiverId;
 
     private String receiverName;
+
+    @Indexed
+    private String conversationId;
 
     private String message;
 

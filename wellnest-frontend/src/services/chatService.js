@@ -30,6 +30,28 @@ const chatService = {
     }
   },
 
+  getUnreadCount: async (keepArchivedChats = true) => {
+    try {
+      const response = await api.get('/chat/unread/count', {
+        params: { keepArchivedChats }
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Get unread chat count error:', error);
+      throw error;
+    }
+  },
+
+  markChatAsRead: async (otherUserId) => {
+    try {
+      const response = await api.put(`/chat/conversation/${otherUserId}/read`);
+      return response.data;
+    } catch (error) {
+      console.error('Mark chat as read error:', error);
+      throw error;
+    }
+  },
+
   deleteForMe: async (messageId) => {
     const response = await api.delete(`/chat/${messageId}/for-me`);
     return response.data;
