@@ -1,20 +1,16 @@
 import { useState, useEffect } from 'react';
 import TrainerService from '../../services/trainerService';
 import weightService from '../../services/weightService';
-import workoutAssignmentService from '../../services/workoutAssignmentService';
 import {
   Users,
   Droplets,
   Flame,
   Moon,
   Dumbbell,
-  Send,
-  MessageCircle,
   TrendingUp,
   ChevronRight,
   X,
   Activity,
-  Plus,
 } from 'lucide-react';
 import './TrainerDashboard.css';
 
@@ -22,24 +18,33 @@ const TrainerDashboard = () => {
   const [trainees, setTrainees] = useState([]);
   const [selectedTrainee, setSelectedTrainee] = useState(null);
   const [traineeStats, setTraineeStats] = useState(null);
-  const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(true);
-  const [sending, setSending] = useState(false);
-  const [activeTab, setActiveTab] = useState('stats'); // 'stats', 'bmi', 'workout'
+  const [activeTab, setActiveTab] = useState('stats'); // 'stats', 'bmi'
   const [bmiHistory, setBmiHistory] = useState([]);
-  const [showWorkoutModal, setShowWorkoutModal] = useState(false);
-  const [workoutForm, setWorkoutForm] = useState({
-    workoutType: '',
-    exercises: '',
-    setsAndReps: '',
-    duration: '',
-    notes: '',
-    nutritionAdvice: ''
-  });
 
   useEffect(() => {
     loadTrainees();
   }, []);
+
+  useEffect(() => {
+    if (!selectedTrainee?.id) return;
+
+    loadTraineeStats(selectedTrainee.id);
+    loadTraineeBMI(selectedTrainee.id);
+
+    const statsInterval = setInterval(() => {
+      loadTraineeStats(selectedTrainee.id);
+    }, 10000);
+
+    const bmiInterval = setInterval(() => {
+      loadTraineeBMI(selectedTrainee.id);
+    }, 30000);
+
+    return () => {
+      clearInterval(statsInterval);
+      clearInterval(bmiInterval);
+    };
+  }, [selectedTrainee?.id]);
 
   const loadTrainees = async () => {
     try {
@@ -81,51 +86,6 @@ const TrainerDashboard = () => {
     setActiveTab('stats');
     loadTraineeStats(trainee.id);
     loadTraineeBMI(trainee.id);
-    setMessage('');
-  };
-
-  const handleAssignWorkout = async () => {
-    if (!selectedTrainee || !workoutForm.workoutType || !workoutForm.exercises) {
-      alert('Please fill in workout type and exercises');
-      return;
-    }
-
-    try {
-      const result = await workoutAssignmentService.assignWorkout(selectedTrainee.id, workoutForm);
-      if (result.success) {
-        alert('Workout assigned successfully!');
-        setShowWorkoutModal(false);
-        setWorkoutForm({
-          workoutType: '',
-          exercises: '',
-          setsAndReps: '',
-          duration: '',
-          notes: '',
-          nutritionAdvice: ''
-        });
-      }
-    } catch (error) {
-      console.error('Failed to assign workout:', error);
-      alert('Failed to assign workout');
-    }
-  };
-
-  const handleSendMessage = async () => {
-    if (!message.trim() || !selectedTrainee) return;
-    
-    setSending(true);
-    try {
-      const result = await TrainerService.sendMessage(selectedTrainee.id, message);
-      if (result.success) {
-        setMessage('');
-        alert('Message sent successfully!');
-      }
-    } catch (error) {
-      console.error('Failed to send message:', error);
-      alert('Failed to send message');
-    } finally {
-      setSending(false);
-    }
   };
 
   const getGoalLabel = (goal) => {
@@ -159,7 +119,7 @@ const TrainerDashboard = () => {
         <div className="trainer-header">
           <div>
             <h1>My Trainees</h1>
-            <p className="subtitle">Monitor progress and send messages</p>
+            <p className="subtitle">Monitor trainee progress in real time</p>
           </div>
           <div className="trainer-stats-bar">
             <div className="trainer-stat">
@@ -223,12 +183,6 @@ const TrainerDashboard = () => {
                 >
                   <Activity size={18} /> BMI Progress
                 </button>
-                <button 
-                  className={`tab-btn ${activeTab === 'workout' ? 'active' : ''}`}
-                  onClick={() => setActiveTab('workout')}
-                >
-                  <Dumbbell size={18} /> Assign Workout
-                </button>
               </div>
 
               {/* Tab Content */}
@@ -281,24 +235,6 @@ const TrainerDashboard = () => {
                     </div>
                   </div>
 
-                  {/* Message Section */}
-                  <div className="message-section">
-                    <h3><MessageCircle size={20} /> Send Message</h3>
-                    <textarea
-                      placeholder="Write a motivational message or guidance for your trainee..."
-                      value={message}
-                      onChange={(e) => setMessage(e.target.value)}
-                      rows={4}
-                    />
-                    <button 
-                      className="send-message-btn" 
-                      onClick={handleSendMessage}
-                      disabled={sending || !message.trim()}
-                    >
-                      <Send size={18} />
-                      {sending ? 'Sending...' : 'Send Message'}
-                    </button>
-                </div>
                 </>
               )}
 
@@ -399,84 +335,12 @@ const TrainerDashboard = () => {
                 </div>
               )}
 
-              {activeTab === 'workout' && (
-                <div className="workout-assignment-section">
-                  <h3><Dumbbell size={20} /> Assign Workout Plan</h3>
-                  
-                  <div className="workout-form">
-                    <div className="form-group">
-                      <label>Workout Type *</label>
-                      <input
-                        type="text"
-                        placeholder="e.g., Strength Training, Cardio, HIIT"
-                        value={workoutForm.workoutType}
-                        onChange={(e) => setWorkoutForm({...workoutForm, workoutType: e.target.value})}
-                      />
-                    </div>
-
-                    <div className="form-group">
-                      <label>Exercises *</label>
-                      <textarea
-                        placeholder="List exercises (one per line)"
-                        value={workoutForm.exercises}
-                        onChange={(e) => setWorkoutForm({...workoutForm, exercises: e.target.value})}
-                        rows={4}
-                      />
-                    </div>
-
-                    <div className="form-group">
-                      <label>Sets & Reps</label>
-                      <textarea
-                        placeholder="e.g., 3 sets x 12 reps for each exercise"
-                        value={workoutForm.setsAndReps}
-                        onChange={(e) => setWorkoutForm({...workoutForm, setsAndReps: e.target.value})}
-                        rows={2}
-                      />
-                    </div>
-
-                    <div className="form-group">
-                      <label>Duration (minutes)</label>
-                      <input
-                        type="number"
-                        placeholder="e.g., 45"
-                        value={workoutForm.duration}
-                        onChange={(e) => setWorkoutForm({...workoutForm, duration: e.target.value})}
-                      />
-                    </div>
-
-                    <div className="form-group">
-                      <label>Notes</label>
-                      <textarea
-                        placeholder="Additional instructions or tips"
-                        value={workoutForm.notes}
-                        onChange={(e) => setWorkoutForm({...workoutForm, notes: e.target.value})}
-                        rows={3}
-                      />
-                    </div>
-
-                    <div className="form-group">
-                      <label>Nutrition Advice</label>
-                      <textarea
-                        placeholder="Diet recommendations to support this workout"
-                        value={workoutForm.nutritionAdvice}
-                        onChange={(e) => setWorkoutForm({...workoutForm, nutritionAdvice: e.target.value})}
-                        rows={3}
-                      />
-                    </div>
-
-                    <button className="assign-workout-btn" onClick={handleAssignWorkout}>
-                      <Plus size={18} />
-                      Assign Workout & Notify Trainee
-                    </button>
-                  </div>
-                </div>
-              )}
             </div>
           ) : (
             <div className="trainee-details empty">
               <div className="select-prompt">
                 <Users size={64} />
-                <p>Select a trainee to view their stats and send messages</p>
+                <p>Select a trainee to view their stats and BMI progress</p>
               </div>
             </div>
           )}

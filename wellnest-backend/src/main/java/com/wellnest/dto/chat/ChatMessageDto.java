@@ -14,5 +14,6 @@ public class ChatMessageDto {
     private String receiverName;
     private String message;
     private Boolean isRead;
+    private Boolean deletedForEveryone;
     private LocalDateTime createdAt;
 }

@@ -47,6 +47,7 @@ const getNavItems = (role) => {
 
   // Communication
   items.push(
+    { path: '/chat', label: 'Chat', icon: MessageSquare },
     { path: '/notifications', label: 'Notifications', icon: Bell },
   );
 

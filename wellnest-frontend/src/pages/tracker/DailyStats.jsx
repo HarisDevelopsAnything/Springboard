@@ -98,7 +98,9 @@ export default function DailyStats() {
   };
 
   const updateGoal = async (newGoal) => {
-    const clamped = Math.max(2, Math.min(6, newGoal));
+    const parsedGoal = Number(newGoal);
+    if (!Number.isFinite(parsedGoal)) return;
+    const clamped = Math.max(2, Math.min(6, parsedGoal));
     setWaterGoal(clamped);
     try {
       await trackerService.upsertDailyStat({
@@ -118,7 +120,9 @@ export default function DailyStats() {
   };
 
   const updateSleepGoal = async (newGoal) => {
-    const clamped = Math.max(6, Math.min(10, newGoal));
+    const parsedGoal = Number(newGoal);
+    if (!Number.isFinite(parsedGoal)) return;
+    const clamped = Math.max(6, Math.min(10, parsedGoal));
     setSleepGoal(clamped);
     try {
       await trackerService.upsertDailyStat({
@@ -156,16 +160,16 @@ export default function DailyStats() {
           
           <div className="water-controls">
             <div className="quick-add-buttons">
-              <button className="quick-btn" onClick={() => updateWater(0.25)}>+0.25L</button>
-              <button className="quick-btn" onClick={() => updateWater(0.5)}>+0.5L</button>
-              <button className="quick-btn" onClick={() => updateWater(1)}>+1L</button>
-              <button className="quick-btn reset-btn" onClick={() => updateWater(-currentWater)}>Reset</button>
+              <button type="button" className="quick-btn" onClick={() => updateWater(0.25)}>+0.25L</button>
+              <button type="button" className="quick-btn" onClick={() => updateWater(0.5)}>+0.5L</button>
+              <button type="button" className="quick-btn" onClick={() => updateWater(1)}>+1L</button>
+              <button type="button" className="quick-btn reset-btn" onClick={() => updateWater(-currentWater)}>Reset</button>
             </div>
             
             <div className="goal-setter">
               <label>Daily Goal (2-6L):</label>
               <div className="goal-input-group">
-                <button onClick={() => updateGoal(waterGoal - 0.5)}>−</button>
+                <button type="button" onClick={() => updateGoal(waterGoal - 0.5)}>−</button>
                 <input 
                   type="number" 
                   min="2" 
@@ -174,7 +178,7 @@ export default function DailyStats() {
                   value={waterGoal} 
                   onChange={(e) => updateGoal(parseFloat(e.target.value))}
                 />
-                <button onClick={() => updateGoal(waterGoal + 0.5)}>+</button>
+                <button type="button" onClick={() => updateGoal(waterGoal + 0.5)}>+</button>
               </div>
             </div>
           </div>
@@ -256,7 +260,7 @@ export default function DailyStats() {
             <div className="goal-setter">
               <label>Sleep Goal (6-10h):</label>
               <div className="goal-input-group">
-                <button onClick={() => updateSleepGoal(sleepGoal - 0.5)}>−</button>
+                <button type="button" onClick={() => updateSleepGoal(sleepGoal - 0.5)}>−</button>
                 <input 
                   type="number" 
                   min="6" 
@@ -265,11 +269,11 @@ export default function DailyStats() {
                   value={sleepGoal} 
                   onChange={(e) => updateSleepGoal(parseFloat(e.target.value))}
                 />
-                <button onClick={() => updateSleepGoal(sleepGoal + 0.5)}>+</button>
+                <button type="button" onClick={() => updateSleepGoal(sleepGoal + 0.5)}>+</button>
               </div>
             </div>
             
-            <button className="save-btn" onClick={saveSleep}>Save Sleep Data</button>
+            <button type="button" className="save-btn" onClick={saveSleep}>Save Sleep Data</button>
           </div>
         </div>
       </div>

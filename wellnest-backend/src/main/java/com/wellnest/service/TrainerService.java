@@ -9,7 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.*;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -17,6 +17,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 public class TrainerService {
+
+    private static final int TRAINER_LOCK_DAYS = 30;
 
     private final UserRepository userRepository;
     private final FitnessProfileRepository fitnessProfileRepository;
@@ -35,7 +37,11 @@ public class TrainerService {
         return trainers.stream()
                 .filter(User::isEmailVerified)
                 .map(trainer -> {
-                    int count = assignmentRepository.findByTrainerIdAndActiveTrue(trainer.getId()).size();
+                int count = (int) assignmentRepository.findByTrainerIdAndActiveTrue(trainer.getId())
+                    .stream()
+                    .map(TrainerAssignment::getTraineeId)
+                    .distinct()
+                    .count();
                     return TrainerDTO.builder()
                             .id(trainer.getId())
                             .fullName(trainer.getFullName())
@@ -47,8 +53,8 @@ public class TrainerService {
     }
 
     /**
-     * Trainee selects a trainer for today.
-     * Enforces: one trainer per trainee per day.
+     * Trainee selects a trainer.
+     * Enforces: once selected, trainer cannot be changed for 30 days.
      */
     public String selectTrainer(String traineeId, String trainerId) {
         // Validate the trainee is not a trainer themselves
@@ -67,21 +73,32 @@ public class TrainerService {
 
         LocalDate today = LocalDate.now();
 
-        // Check if trainee already picked a trainer today
-        Optional<TrainerAssignment> existing = assignmentRepository.findByTraineeIdAndDate(traineeId, today);
-        if (existing.isPresent()) {
-            TrainerAssignment assignment = existing.get();
-            if (assignment.getTrainerId().equals(trainerId)) {
-                throw new RuntimeException("You have already selected this trainer for today");
+        // Get current active trainer assignment (latest by date)
+        List<TrainerAssignment> activeAssignments = assignmentRepository.findByTraineeIdAndActiveTrue(traineeId);
+        Optional<TrainerAssignment> currentOpt = activeAssignments.stream()
+                .max(Comparator.comparing(TrainerAssignment::getDate));
+
+        if (currentOpt.isPresent()) {
+            TrainerAssignment current = currentOpt.get();
+            LocalDate lockedUntil = current.getDate().plusDays(TRAINER_LOCK_DAYS);
+
+            if (current.getTrainerId().equals(trainerId)) {
+                return "You are already assigned to " + trainer.getFullName();
             }
-            // Update to the new trainer
-            assignment.setTrainerId(trainerId);
-            assignment.setActive(true);
-            assignmentRepository.save(assignment);
-            return "Trainer changed to " + trainer.getFullName() + " for today";
+
+            if (today.isBefore(lockedUntil)) {
+                long daysRemaining = ChronoUnit.DAYS.between(today, lockedUntil);
+                throw new RuntimeException(
+                        "Trainer can only be changed after 30 days. " + daysRemaining + " day(s) remaining."
+                );
+            }
+
+            // Lock period complete: deactivate existing active assignment(s) before changing
+            activeAssignments.forEach(a -> a.setActive(false));
+            assignmentRepository.saveAll(activeAssignments);
         }
 
-        // Create new assignment
+        // Create new active assignment
         TrainerAssignment assignment = TrainerAssignment.builder()
                 .traineeId(traineeId)
                 .trainerId(trainerId)
@@ -91,7 +108,7 @@ public class TrainerService {
         assignmentRepository.save(assignment);
 
         log.info("Trainee {} selected trainer {} for {}", traineeId, trainerId, today);
-        return "Successfully selected " + trainer.getFullName() + " as your trainer for today";
+        return "Successfully selected " + trainer.getFullName() + " as your trainer for the next 30 days";
     }
 
     /**
@@ -106,7 +123,16 @@ public class TrainerService {
             throw new RuntimeException("Access denied. You are not a trainer.");
         }
 
-        List<TrainerAssignment> assignments = assignmentRepository.findByTrainerIdAndActiveTrue(trainerId);
+        List<TrainerAssignment> assignments = assignmentRepository.findByTrainerIdAndActiveTrue(trainerId)
+            .stream()
+            .collect(Collectors.toMap(
+                TrainerAssignment::getTraineeId,
+                a -> a,
+                (a, b) -> a.getDate().isAfter(b.getDate()) ? a : b
+            ))
+            .values()
+            .stream()
+            .collect(Collectors.toList());
 
         return assignments.stream()
                 .map(assignment -> {
@@ -143,12 +169,13 @@ public class TrainerService {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Get the trainee's current trainer for today (if any).
-     */
+        /**
+         * Get the trainee's currently active trainer (if any).
+         */
     public TrainerDTO getMyTrainerToday(String traineeId) {
-        LocalDate today = LocalDate.now();
-        Optional<TrainerAssignment> assignment = assignmentRepository.findByTraineeIdAndDate(traineeId, today);
+        List<TrainerAssignment> activeAssignments = assignmentRepository.findByTraineeIdAndActiveTrue(traineeId);
+        Optional<TrainerAssignment> assignment = activeAssignments.stream()
+            .max(Comparator.comparing(TrainerAssignment::getDate));
 
         if (assignment.isEmpty()) {
             return null;
@@ -158,7 +185,11 @@ public class TrainerService {
                 .orElse(null);
         if (trainer == null) return null;
 
-        int count = assignmentRepository.findByTrainerIdAndActiveTrue(trainer.getId()).size();
+        int count = (int) assignmentRepository.findByTrainerIdAndActiveTrue(trainer.getId())
+            .stream()
+            .map(TrainerAssignment::getTraineeId)
+            .distinct()
+            .count();
         return TrainerDTO.builder()
                 .id(trainer.getId())
                 .fullName(trainer.getFullName())
@@ -178,12 +209,9 @@ public class TrainerService {
             throw new RuntimeException("Access denied");
         }
 
-        Optional<TrainerAssignment> assignment = assignmentRepository
-                .findByTrainerIdAndActiveTrue(trainerId).stream()
-                .filter(a -> a.getTraineeId().equals(traineeId))
-                .findFirst();
-        
-        if (assignment.isEmpty()) {
+        boolean assigned = assignmentRepository.existsByTraineeIdAndTrainerIdAndActiveTrue(traineeId, trainerId);
+
+        if (!assigned) {
             throw new RuntimeException("You are not assigned to this trainee");
         }
 
@@ -230,12 +258,10 @@ public class TrainerService {
         }
 
         // Validate trainee assignment
-        Optional<TrainerAssignment> assignment = assignmentRepository
-                .findByTrainerIdAndActiveTrue(trainerId).stream()
-                .filter(a -> a.getTraineeId().equals(request.getTraineeId()))
-                .findFirst();
-        
-        if (assignment.isEmpty()) {
+        boolean assigned = assignmentRepository.existsByTraineeIdAndTrainerIdAndActiveTrue(
+            request.getTraineeId(), trainerId);
+
+        if (!assigned) {
             throw new RuntimeException("You are not assigned to this trainee");
         }
 

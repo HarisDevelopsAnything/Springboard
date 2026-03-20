@@ -5,6 +5,8 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.time.LocalDateTime;
 
 @Document(collection = "chat_messages")
@@ -25,6 +27,12 @@ public class ChatMessage {
     private String message;
 
     private Boolean isRead;
+
+    @Builder.Default
+    private Boolean deletedForEveryone = false;
+
+    @Builder.Default
+    private List<String> deletedForUsers = new ArrayList<>();
 
     @CreatedDate
     private LocalDateTime createdAt;

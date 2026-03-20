@@ -22,6 +22,7 @@ import AdminDashboard from './pages/admin/AdminDashboard';
 import BmiCalculatorPage from './pages/health/BmiCalculatorPage';
 import WeightTrackerPage from './pages/health/WeightTrackerPage';
 import NotificationsPage from './pages/notifications/NotificationsPage';
+import ChatPage from './pages/chat/ChatPage';
 
 function App() {
   return (
@@ -62,6 +63,7 @@ function App() {
             <Route path="/bmi-calculator" element={<BmiCalculatorPage />} />
             <Route path="/weight-tracker" element={<WeightTrackerPage />} />
             <Route path="/notifications" element={<NotificationsPage />} />
+            <Route path="/chat" element={<ChatPage />} />
           </Route>
 
           {/* Default redirect - role based */}

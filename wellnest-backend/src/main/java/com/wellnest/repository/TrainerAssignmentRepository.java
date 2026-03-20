@@ -25,4 +25,10 @@ public interface TrainerAssignmentRepository extends MongoRepository<TrainerAssi
 
     /** Get all assignments for a trainer (all-time) */
     List<TrainerAssignment> findByTrainerId(String trainerId);
+
+    /** Get all active assignments for a trainee */
+    List<TrainerAssignment> findByTraineeIdAndActiveTrue(String traineeId);
+
+    /** Check if trainee and trainer are actively assigned */
+    boolean existsByTraineeIdAndTrainerIdAndActiveTrue(String traineeId, String trainerId);
 }
