@@ -2,9 +2,12 @@ import React, { useState, useEffect, useRef } from 'react';
 import { toast } from 'react-toastify';
 import { useAuth } from '../../context/AuthContext';
 import chatService from '../../services/chatService';
+import aiChatService from '../../services/aiChatService';
 import TrainerService from '../../services/trainerService';
-import { FiSend, FiUser, FiMessageCircle, FiMoreVertical, FiTrash2 } from 'react-icons/fi';
+import { FiSend, FiUser, FiMessageCircle, FiMoreVertical, FiTrash2, FiCpu } from 'react-icons/fi';
 import './ChatPage.css';
+
+const AI_CONTACT_ID = 'ai-coach';
 
 const ChatPage = () => {
   const { user } = useAuth();
@@ -13,14 +16,17 @@ const ChatPage = () => {
   const [contacts, setContacts] = useState([]);
   const [selectedContactId, setSelectedContactId] = useState('');
   const [activeMenuMessageId, setActiveMenuMessageId] = useState('');
+  const [aiResponding, setAiResponding] = useState(false);
   const [loading, setLoading] = useState(true);
   const socketSubscriptionRef = useRef(null);
   const messagesEndRef = useRef(null);
   const selectedContactKey = `chat_selected_contact_${user?.id || 'unknown'}`;
+  const aiConversationKey = `ai_chat_messages_${user?.id || 'unknown'}`;
 
   const isTrainer = user?.role === 'ROLE_TRAINER';
 
   const otherUser = contacts.find((c) => c.id === selectedContactId) || null;
+  const isAiChat = selectedContactId === AI_CONTACT_ID;
 
   useEffect(() => {
     loadChatData();
@@ -50,6 +56,15 @@ const ChatPage = () => {
 
   useEffect(() => {
     if (!selectedContactId) return;
+
+    if (isAiChat) {
+      if (socketSubscriptionRef.current) {
+        socketSubscriptionRef.current.unsubscribe();
+        socketSubscriptionRef.current = null;
+      }
+      loadMessages(selectedContactId);
+      return;
+    }
 
     loadMessages(selectedContactId);
 
@@ -83,7 +98,7 @@ const ChatPage = () => {
         socketSubscriptionRef.current = null;
       }
     };
-  }, [selectedContactId]);
+  }, [selectedContactId, isAiChat]);
 
   useEffect(() => {
     scrollToBottom();
@@ -91,6 +106,15 @@ const ChatPage = () => {
 
   const loadChatData = async () => {
     setLoading(true);
+
+    const aiContact = {
+      id: AI_CONTACT_ID,
+      name: 'AI Fitness Coach',
+      role: 'ROLE_AI',
+      unreadCount: 0,
+      isAi: true,
+    };
+
     try {
       if (isTrainer) {
         const contactsResult = await chatService.getContacts();
@@ -102,11 +126,14 @@ const ChatPage = () => {
             role: c.role,
             unreadCount: Number(c.unreadCount || 0)
           }));
-          setContacts(mappedContacts);
+          const allContacts = [aiContact, ...mappedContacts];
+          setContacts(allContacts);
 
           const savedContactId = localStorage.getItem(selectedContactKey);
-          if (savedContactId && mappedContacts.some((c) => c.id === savedContactId)) {
+          if (savedContactId && allContacts.some((c) => c.id === savedContactId)) {
             setSelectedContactId(savedContactId);
+          } else {
+            setSelectedContactId(AI_CONTACT_ID);
           }
         }
       } else {
@@ -119,16 +146,28 @@ const ChatPage = () => {
             role: 'ROLE_TRAINER',
             unreadCount: 0
           };
-          setContacts([traineeContact]);
-          setSelectedContactId(trainer.id);
-          localStorage.setItem(selectedContactKey, trainer.id);
+          const allContacts = [aiContact, traineeContact];
+          setContacts(allContacts);
+
+          const savedContactId = localStorage.getItem(selectedContactKey);
+          const initialContactId = savedContactId && allContacts.some((c) => c.id === savedContactId)
+            ? savedContactId
+            : trainer.id;
+          setSelectedContactId(initialContactId);
+          localStorage.setItem(selectedContactKey, initialContactId);
         } else {
-          toast.info('Please select a trainer to start chatting');
+          setContacts([aiContact]);
+          setSelectedContactId(AI_CONTACT_ID);
+          localStorage.setItem(selectedContactKey, AI_CONTACT_ID);
+          toast.info('No active trainer found. You can still chat with AI Fitness Coach.');
         }
       }
     } catch (error) {
       console.error('Failed to load chat data:', error);
       toast.error('Failed to load chat data.');
+      setContacts([aiContact]);
+      setSelectedContactId(AI_CONTACT_ID);
+      localStorage.setItem(selectedContactKey, AI_CONTACT_ID);
     } finally {
       setLoading(false);
     }
@@ -136,6 +175,17 @@ const ChatPage = () => {
 
   const loadMessages = async (otherId = selectedContactId) => {
     if (!otherId) return;
+
+    if (otherId === AI_CONTACT_ID) {
+      try {
+        const raw = localStorage.getItem(aiConversationKey);
+        const stored = raw ? JSON.parse(raw) : [];
+        setMessages(Array.isArray(stored) ? stored : []);
+      } catch {
+        setMessages([]);
+      }
+      return;
+    }
     
     try {
       const result = await chatService.getConversation(otherId);
@@ -171,6 +221,53 @@ const ChatPage = () => {
     e.preventDefault();
     
     if (!newMessage.trim() || !otherUser) {
+      return;
+    }
+
+    if (isAiChat) {
+      const userText = newMessage.trim();
+      const userMessage = {
+        id: `ai-user-${Date.now()}`,
+        senderId: user.id,
+        receiverId: AI_CONTACT_ID,
+        message: userText,
+        createdAt: new Date().toISOString(),
+        deletedForEveryone: false,
+      };
+
+      const nextMessages = [...messages, userMessage];
+      setMessages(nextMessages);
+      setNewMessage('');
+      setAiResponding(true);
+
+      try {
+        const history = nextMessages.slice(-12).map((m) => ({
+          role: m.senderId === user.id ? 'user' : 'assistant',
+          content: m.message,
+        }));
+
+        const result = await aiChatService.sendMessage(userText, history);
+        const aiReply = result?.success ? result?.data?.reply : 'Sorry, I could not generate a response right now.';
+
+        const aiMessage = {
+          id: `ai-assistant-${Date.now()}`,
+          senderId: AI_CONTACT_ID,
+          receiverId: user.id,
+          message: aiReply || 'Sorry, I could not generate a response right now.',
+          createdAt: new Date().toISOString(),
+          deletedForEveryone: false,
+        };
+
+        const updatedConversation = [...nextMessages, aiMessage];
+        setMessages(updatedConversation);
+        localStorage.setItem(aiConversationKey, JSON.stringify(updatedConversation));
+      } catch (error) {
+        toast.error(error?.message || 'AI coach is unavailable right now. Please try again.');
+        localStorage.setItem(aiConversationKey, JSON.stringify(nextMessages));
+      } finally {
+        setAiResponding(false);
+      }
+
       return;
     }
 
@@ -270,8 +367,8 @@ const ChatPage = () => {
                     className={`chat-member-item ${selectedContactId === contact.id ? 'active' : ''}`}
                     onClick={() => handleSelectContact(contact.id)}
                   >
-                    <div className="member-avatar">
-                      <FiUser />
+                    <div className={`member-avatar ${contact.isAi ? 'member-avatar-ai' : ''}`}>
+                      {contact.isAi ? <FiCpu /> : <FiUser />}
                     </div>
                     <div className="member-meta">
                       <strong>
@@ -282,7 +379,13 @@ const ChatPage = () => {
                           </span>
                         )}
                       </strong>
-                      <span>{contact.role === 'ROLE_TRAINER' ? 'Trainer' : 'Trainee'}</span>
+                      <span>
+                        {contact.isAi
+                          ? 'AI Assistant'
+                          : contact.role === 'ROLE_TRAINER'
+                            ? 'Trainer'
+                            : 'Trainee'}
+                      </span>
                     </div>
                   </button>
                 ))}
@@ -301,12 +404,14 @@ const ChatPage = () => {
               <>
                 <div className="chat-header">
                   <div className="chat-user-info">
-                    <div className="user-avatar">
-                      <FiUser />
+                    <div className={`user-avatar ${isAiChat ? 'user-avatar-ai' : ''}`}>
+                      {isAiChat ? <FiCpu /> : <FiUser />}
                     </div>
                     <div>
                       <h2>{otherUser.name}</h2>
-                      <p className="user-role">{isTrainer ? 'Your Trainee' : 'Your Trainer'}</p>
+                      <p className="user-role">
+                        {isAiChat ? 'WellNest AI Coach' : isTrainer ? 'Your Trainee' : 'Your Trainer'}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -337,7 +442,7 @@ const ChatPage = () => {
                             })}
                           </div>
 
-                          {!msg.deletedForEveryone && (
+                          {!msg.deletedForEveryone && !isAiChat && (
                             <div className="message-actions-wrap">
                               <button
                                 type="button"
@@ -365,6 +470,13 @@ const ChatPage = () => {
                       </div>
                     ))
                   )}
+                  {isAiChat && aiResponding && (
+                    <div className="message message-received">
+                      <div className="message-content">
+                        <div className="message-text message-typing">AI Coach is typing…</div>
+                      </div>
+                    </div>
+                  )}
                   <div ref={messagesEndRef} />
                 </div>
 
@@ -373,10 +485,10 @@ const ChatPage = () => {
                     type="text"
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
-                    placeholder="Type your message..."
+                    placeholder={isAiChat ? 'Ask fitness, nutrition, sleep or workout questions...' : 'Type your message...'}
                     className="chat-input"
                   />
-                  <button type="submit" className="btn-send" disabled={!newMessage.trim()}>
+                  <button type="submit" className="btn-send" disabled={!newMessage.trim() || aiResponding}>
                     <FiSend />
                   </button>
                 </form>
